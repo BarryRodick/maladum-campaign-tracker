@@ -711,6 +711,11 @@ function renderAdventurerSlide(adventurer) {
               <span>${escapeHtml(template?.cardCode ?? "Imported")}</span>
             </div>
             <p class="progress-note">${escapeHtml(renderProgressSummary(progressionState))}</p>
+            ${progressionState.totalPicks || progressionState.totalUsed ? `
+              <div class="bonus-dock bonus-dock-card">
+                ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track, true)).join("")}
+              </div>
+            ` : ""}
             <div class="level-dock">
               ${renderProgressEntries(adventurer)}
             </div>
@@ -726,7 +731,7 @@ function renderAdventurerSlide(adventurer) {
         <details class="tool-drawer">
           <summary>Progression</summary>
           <div class="bonus-dock">
-            ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track)).join("")}
+            ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track, false)).join("")}
           </div>
           <p class="progress-note">${escapeHtml(renderProgressSummary(progressionState))}</p>
         </details>
@@ -962,13 +967,14 @@ function renderBadgeHotspot(badge) {
   `;
 }
 
-function renderBonusChip(adventurer, track) {
+function renderBonusChip(adventurer, track, compact = false) {
   const value = adventurer.campaignState.statIncreases[track];
   const canIncrease = canIncreaseStat(adventurer, track);
   const canDecrease = value > 0;
+  const label = compact ? getTrackChipLabel(track) : formatLabel(track);
   return `
     <div class="bonus-chip">
-      <span>${track.charAt(0).toUpperCase()}</span>
+      <span title="${escapeAttribute(formatLabel(track))}">${escapeHtml(label)}</span>
       <button
         class="mini-step"
         data-action="adjust-bonus"
@@ -1682,6 +1688,15 @@ function formatLabel(value) {
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function getTrackChipLabel(track) {
+  return {
+    health: "HP",
+    skill: "Skill",
+    magic: "Magic",
+    actions: "Act"
+  }[track] ?? formatLabel(track);
 }
 
 function clamp(value, min, max) {

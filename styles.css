@@ -412,6 +412,10 @@ a {
   gap: 0.35rem;
 }
 
+.bonus-dock-card {
+  gap: 0.28rem;
+}
+
 .bonus-chip {
   display: grid;
   grid-template-columns: auto 1.4rem minmax(1.2rem, auto) 1.4rem;
@@ -422,6 +426,17 @@ a {
   border-radius: 999px;
   font-size: 0.73rem;
   background: rgba(255, 236, 205, 0.08);
+}
+
+.bonus-dock-card .bonus-chip {
+  min-height: 1.82rem;
+  padding: 0.14rem 0.18rem;
+  font-size: 0.68rem;
+}
+
+.bonus-dock-card .mini-step {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .bonus-chip span,

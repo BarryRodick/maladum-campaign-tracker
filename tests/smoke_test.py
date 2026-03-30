@@ -347,6 +347,19 @@ def main() -> int:
             action_bonus.get_attribute("disabled") is not None,
         )
 
+        card_bonus_controls = driver.find_elements(
+            By.CSS_SELECTOR,
+            (
+                'article.card-slide[data-adventurer-id="character-artain"] '
+                '.bonus-dock-card button[data-action="adjust-bonus"]'
+            ),
+        )
+        check(
+            "completed xp rows show on-card stat reward controls",
+            len(card_bonus_controls) == 8,
+            f"found {len(card_bonus_controls)} controls",
+        )
+
         click_slide_element(
             driver,
             "character-artain",
