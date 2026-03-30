@@ -1,4 +1,6 @@
 import {
+  ACTIVE_PARTY_LIMIT,
+  PROFESSION_BOARD_OVERVIEW_URL,
   SEED_DATA_URL,
   STATUS_EFFECTS,
   STORAGE_KEY
@@ -30,14 +32,19 @@ const ui = {
   search: "",
   selectedReferenceId: null,
   rulesSheetOpen: false,
-  activePageIndex: 0
+  activePageIndex: 0,
+  builderCharacterId: "",
+  builderProfession: "",
+  builderPlacement: "active"
 };
 
 let seedState = null;
+let professionCatalog = [];
 let state = null;
 
 app.addEventListener("click", handleClick);
 app.addEventListener("input", handleInput);
+app.addEventListener("change", handleInput);
 document.addEventListener("change", handleDocumentChange);
 
 bootstrap();
@@ -46,8 +53,14 @@ async function bootstrap() {
   renderLoading();
 
   try {
-    seedState = await loadSeedState();
+    const [loadedSeed, loadedProfessionCatalog] = await Promise.all([
+      loadSeedState(),
+      loadProfessionCatalog()
+    ]);
+    seedState = loadedSeed;
+    professionCatalog = loadedProfessionCatalog;
     state = loadState(seedState);
+    syncBuilderSelections();
     ui.selectedReferenceId = getDefaultReferenceId();
     render();
   } catch (error) {
@@ -63,6 +76,30 @@ async function loadSeedState() {
   }
 
   return response.json();
+}
+
+async function loadProfessionCatalog() {
+  try {
+    const response = await fetch(PROFESSION_BOARD_OVERVIEW_URL, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Profession overview request failed with status ${response.status}.`);
+    }
+
+    const overview = await response.json();
+    if (Array.isArray(overview?.summary?.uniqueProfessions)) {
+      return clone(overview.summary.uniqueProfessions);
+    }
+
+    if (Array.isArray(overview?.professionBoards)) {
+      return overview.professionBoards
+        .map((board) => board.profession)
+        .filter(Boolean);
+    }
+  } catch (error) {
+    console.warn("Failed to load profession catalog; falling back to imported references only.", error);
+  }
+
+  return [];
 }
 
 function loadState(seed) {
@@ -101,66 +138,31 @@ function sanitizeState(raw, seed) {
     };
   }
 
+  if (raw?.cardCatalog) {
+    next.cardCatalog = clone(raw.cardCatalog);
+  }
+
   if (Array.isArray(raw?.adventurers)) {
     const incomingById = new Map(raw.adventurers.map((adventurer) => [adventurer.id, adventurer]));
-    next.adventurers = next.adventurers.map((fallback) => {
-      const incoming = incomingById.get(fallback.id);
-      if (!incoming) {
-        normalizeAdventurer(next, fallback);
-        return fallback;
+    const mergedAdventurers = next.adventurers.map((fallback) =>
+      mergeAdventurerRecord(next, fallback, incomingById.get(fallback.id))
+    );
+
+    raw.adventurers.forEach((incoming) => {
+      if (mergedAdventurers.some((adventurer) => adventurer.id === incoming.id)) {
+        return;
       }
 
-      const merged = {
-        ...fallback,
-        ...incoming,
-        profile: {
-          ...fallback.profile,
-          ...incoming.profile,
-          xpPotentialByRank: Array.isArray(incoming.profile?.xpPotentialByRank)
-            ? clone(incoming.profile.xpPotentialByRank)
-            : fallback.profile.xpPotentialByRank,
-          abilitySlots: Array.isArray(incoming.profile?.abilitySlots)
-            ? clone(incoming.profile.abilitySlots)
-            : fallback.profile.abilitySlots
-        },
-        campaignState: {
-          ...fallback.campaignState,
-          ...incoming.campaignState,
-          xpMarksByRow: Array.isArray(incoming.campaignState?.xpMarksByRow)
-            ? clone(incoming.campaignState.xpMarksByRow)
-            : fallback.campaignState.xpMarksByRow,
-          learnedSkills: Array.isArray(incoming.campaignState?.learnedSkills)
-            ? clone(incoming.campaignState.learnedSkills)
-            : fallback.campaignState.learnedSkills,
-          learnedSpells: Array.isArray(incoming.campaignState?.learnedSpells)
-            ? clone(incoming.campaignState.learnedSpells)
-            : fallback.campaignState.learnedSpells,
-          inventoryItemIds: Array.isArray(incoming.campaignState?.inventoryItemIds)
-            ? clone(incoming.campaignState.inventoryItemIds)
-            : fallback.campaignState.inventoryItemIds,
-          armourItemIds: Array.isArray(incoming.campaignState?.armourItemIds)
-            ? clone(incoming.campaignState.armourItemIds)
-            : fallback.campaignState.armourItemIds,
-          brokenItemIds: Array.isArray(incoming.campaignState?.brokenItemIds)
-            ? clone(incoming.campaignState.brokenItemIds)
-            : fallback.campaignState.brokenItemIds,
-          statIncreases: {
-            ...fallback.campaignState.statIncreases,
-            ...incoming.campaignState?.statIncreases
-          }
-        },
-        trackerState: {
-          ...fallback.trackerState,
-          ...incoming.trackerState,
-          statusEffects: Array.isArray(incoming.trackerState?.statusEffects)
-            ? clone(incoming.trackerState.statusEffects)
-            : fallback.trackerState.statusEffects
-        }
-      };
-
-      normalizeAdventurer(next, merged);
-      return merged;
+      const fallback = createAdventurerFromTemplate(
+        getAdventurerTemplateId(incoming),
+        getNormalizedProfessionValue(incoming.profile?.profession) || null,
+        next,
+        incoming.id
+      );
+      mergedAdventurers.push(mergeAdventurerRecord(next, fallback, incoming));
     });
+
+    next.adventurers = mergedAdventurers;
   } else {
     next.adventurers.forEach((adventurer) => normalizeAdventurer(next, adventurer));
   }
@@ -189,13 +191,11 @@ function sanitizeState(raw, seed) {
     };
   }
 
-  if (raw?.cardCatalog) {
-    next.cardCatalog = clone(raw.cardCatalog);
-  }
-
   if (Array.isArray(raw?.imports)) {
     next.imports = clone(raw.imports);
   }
+
+  normalizePartyRoster(next);
 
   return next;
 }
@@ -299,9 +299,46 @@ function handleClick(event) {
   }
 
   if (action === "jump-page") {
-    const pageIndex = clamp(Number(target.dataset.pageIndex), 0, getPartyAdventurers().length);
+    const pageIndex = clamp(Number(target.dataset.pageIndex), 0, getRosterAdventurers().length);
     ui.activePageIndex = pageIndex;
     scrollToPage(pageIndex);
+    return;
+  }
+
+  if (action === "jump-adventurer") {
+    const pageIndex = getRosterAdventurers().findIndex((adventurer) => adventurer.id === target.dataset.adventurerId);
+    if (pageIndex === -1) {
+      return;
+    }
+
+    ui.activePageIndex = pageIndex;
+    scrollToPage(pageIndex);
+    return;
+  }
+
+  if (action === "set-roster-state") {
+    if (setAdventurerRosterState(target.dataset.adventurerId, target.dataset.rosterState)) {
+      commit();
+    }
+    return;
+  }
+
+  if (action === "add-adventurer") {
+    if (!ui.builderCharacterId || !getNormalizedProfessionValue(ui.builderProfession)) {
+      return;
+    }
+
+    const rosterState = ui.builderPlacement === "reserve" ? "reserve" : "active";
+    const adventurer = createAdventurerFromTemplate(
+      ui.builderCharacterId,
+      getNormalizedProfessionValue(ui.builderProfession),
+      state
+    );
+    state.adventurers.push(adventurer);
+    setAdventurerRosterState(adventurer.id, rosterState);
+    ui.activePageIndex = [...state.party.memberIds, ...state.party.reserveIds].indexOf(adventurer.id);
+    syncBuilderSelections();
+    commit();
     return;
   }
 
@@ -358,6 +395,26 @@ function handleInput(event) {
   if (target.dataset.role === "search-field") {
     ui.search = target.value.trim().toLowerCase();
     render();
+    return;
+  }
+
+  if (target.dataset.role === "builder-field") {
+    const field = target.dataset.field;
+    ui[field] = target.value;
+    syncBuilderSelections();
+    render();
+    return;
+  }
+
+  if (target.dataset.role === "profession-field") {
+    const adventurer = getAdventurer(target.dataset.adventurerId);
+    if (!adventurer) {
+      return;
+    }
+
+    adventurer.profile.profession = getNormalizedProfessionValue(target.value) || null;
+    commit(false);
+    render();
   }
 }
 
@@ -397,6 +454,8 @@ function commit(shouldRender = true) {
   }
 
   state.adventurers.forEach((adventurer) => normalizeAdventurer(state, adventurer));
+  normalizePartyRoster(state);
+  syncBuilderSelections();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   if (shouldRender) {
     render();
@@ -436,8 +495,10 @@ function renderError() {
 }
 
 function render() {
-  const partyAdventurers = getPartyAdventurers();
-  const pageCount = partyAdventurers.length + 1;
+  syncBuilderSelections();
+
+  const rosterAdventurers = getRosterAdventurers();
+  const pageCount = rosterAdventurers.length + 1;
   ui.activePageIndex = clamp(ui.activePageIndex, 0, pageCount - 1);
   const referenceEntries = getFilteredReferenceEntries();
   const selectedReference = getSelectedReference(referenceEntries);
@@ -456,20 +517,20 @@ function render() {
       </header>
 
       <div class="page-dots">
-        ${partyAdventurers.map((a, i) => `
+        ${rosterAdventurers.map((a, i) => `
           <button
-            class="page-dot${i === ui.activePageIndex ? " is-active" : ""}"
+            class="page-dot ${isActiveRosterMember(a.id) ? "is-party" : "is-reserve"}${i === ui.activePageIndex ? " is-active" : ""}"
             data-action="jump-page"
             data-page-index="${i}"
             data-page-kind="character"
             aria-label="Jump to ${escapeAttribute(a.name)}"
-            title="${escapeAttribute(a.name)}"
+            title="${escapeAttribute(`${a.name} · ${getRosterLabel(a.id)}`)}"
           >${escapeHtml(a.name.charAt(0))}</button>
         `).join("")}
         <button
-          class="page-dot${ui.activePageIndex === partyAdventurers.length ? " is-active" : ""}"
+          class="page-dot${ui.activePageIndex === rosterAdventurers.length ? " is-active" : ""}"
           data-action="jump-page"
-          data-page-index="${partyAdventurers.length}"
+          data-page-index="${rosterAdventurers.length}"
           data-page-kind="campaign"
           aria-label="Jump to campaign page"
           title="Campaign"
@@ -477,9 +538,10 @@ function render() {
       </div>
 
       <div class="page-deck card-deck" aria-label="Character pages">
-        ${partyAdventurers.map(renderAdventurerSlide).join("")}
+        ${rosterAdventurers.map(renderAdventurerSlide).join("")}
 
         <article class="card-slide campaign-page">
+          ${renderTeamBuilder()}
           <section class="campaign-bar panel">
             <div class="section-head">
               <h2>${escapeHtml(state.campaign.name)}</h2>
@@ -622,9 +684,10 @@ function syncPageDots() {
 }
 
 function renderAdventurerSlide(adventurer) {
-  const template = getCharacterTemplate(adventurer.id);
+  const template = getCharacterTemplate(getAdventurerTemplateId(adventurer));
   const portraitPath = resolveAssetPath(adventurer.profile.image);
   const progressionState = getProgressionState(adventurer);
+  const rosterLabel = getRosterLabel(adventurer.id);
 
   return `
     <article class="card-slide" data-adventurer-id="${adventurer.id}">
@@ -657,8 +720,8 @@ function renderAdventurerSlide(adventurer) {
 
       <div class="slide-tools panel">
         <div class="section-head compact">
-          <h4>${escapeHtml(adventurer.profile.species)} · ${escapeHtml(adventurer.profile.profession)}</h4>
-          <p>Rank ${adventurer.campaignState.rank}</p>
+          <h4>${escapeHtml(adventurer.profile.species)} · ${escapeHtml(getDisplayProfession(adventurer))}</h4>
+          <p>Rank ${adventurer.campaignState.rank} · ${escapeHtml(rosterLabel)}</p>
         </div>
         <details class="tool-drawer">
           <summary>Progression</summary>
@@ -682,6 +745,130 @@ function renderAdventurerSlide(adventurer) {
         </details>
       </div>
     </article>
+  `;
+}
+
+function renderTeamBuilder() {
+  const roster = getRosterAdventurers();
+  const availableTemplates = getAvailableCharacterTemplates();
+  const professionOptions = getProfessionOptions();
+  const activeCount = state.party.memberIds.length;
+  const reserveCount = state.party.reserveIds.length;
+  const canAddAsActive = ui.builderPlacement !== "active" || activeCount < ACTIVE_PARTY_LIMIT;
+  const addDisabled = !ui.builderCharacterId || !getNormalizedProfessionValue(ui.builderProfession) || !canAddAsActive;
+
+  return `
+    <section class="team-builder panel">
+      <div class="section-head">
+        <div>
+          <h2>Team Builder</h2>
+          <p>${activeCount}/${ACTIVE_PARTY_LIMIT} active · ${reserveCount} reserve</p>
+        </div>
+        <span class="team-summary">${roster.length} tracked</span>
+      </div>
+
+      <div class="builder-grid">
+        <label class="field">
+          <span>Character Card</span>
+          <select data-role="builder-field" data-field="builderCharacterId" ${availableTemplates.length ? "" : "disabled"}>
+            ${availableTemplates.length
+              ? availableTemplates.map((template) => `
+                <option value="${escapeAttribute(template.id)}" ${ui.builderCharacterId === template.id ? "selected" : ""}>
+                  ${escapeHtml(`${template.name} · ${template.species}`)}
+                </option>
+              `).join("")
+              : `<option value="">No unused imported cards</option>`}
+          </select>
+        </label>
+        <label class="field">
+          <span>Profession</span>
+          <select data-role="builder-field" data-field="builderProfession">
+            <option value="">Select profession</option>
+            ${professionOptions.map((profession) => `
+              <option value="${escapeAttribute(profession)}" ${ui.builderProfession === profession ? "selected" : ""}>
+                ${escapeHtml(profession)}
+              </option>
+            `).join("")}
+          </select>
+        </label>
+        <label class="field">
+          <span>Join As</span>
+          <select data-role="builder-field" data-field="builderPlacement">
+            <option value="active" ${ui.builderPlacement === "active" ? "selected" : ""}>Active Party</option>
+            <option value="reserve" ${ui.builderPlacement === "reserve" ? "selected" : ""}>Reserve</option>
+          </select>
+        </label>
+        <div class="field field-action">
+          <span>Recruit</span>
+          <button
+            class="action-btn"
+            data-action="add-adventurer"
+            ${addDisabled ? "disabled" : ""}
+          >Add Adventurer</button>
+        </div>
+      </div>
+
+      ${availableTemplates.length
+        ? ""
+        : `<p class="empty">All imported character cards are already being tracked. Add more character cards to the catalog to recruit additional adventurers here.</p>`}
+      ${ui.builderPlacement === "active" && activeCount >= ACTIVE_PARTY_LIMIT
+        ? `<p class="progress-note">The active party is full. New recruits can still be added to the reserve.</p>`
+        : ""}
+
+      <div class="roster-list">
+        ${roster.map(renderRosterCard).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderRosterCard(adventurer) {
+  const active = isActiveRosterMember(adventurer.id);
+  const canPromote = active || state.party.memberIds.length < ACTIVE_PARTY_LIMIT;
+
+  return `
+    <div class="roster-card">
+      <div class="roster-meta">
+        <div>
+          <strong>${escapeHtml(adventurer.name)}</strong>
+          <p>${escapeHtml(`${adventurer.profile.species} · Rank ${adventurer.campaignState.rank} · ${getRosterLabel(adventurer.id)}`)}</p>
+        </div>
+        <button class="entry-link roster-open" data-action="jump-adventurer" data-adventurer-id="${adventurer.id}">
+          Open
+        </button>
+      </div>
+
+      <label class="field field-inline">
+        <span>Profession</span>
+        <select data-role="profession-field" data-adventurer-id="${adventurer.id}">
+          <option value="">Unassigned</option>
+          ${getProfessionOptions().map((profession) => `
+            <option
+              value="${escapeAttribute(profession)}"
+              ${getNormalizedProfessionValue(adventurer.profile.profession) === profession ? "selected" : ""}
+            >
+              ${escapeHtml(profession)}
+            </option>
+          `).join("")}
+        </select>
+      </label>
+
+      <div class="roster-actions">
+        <button
+          class="state-toggle${active ? " is-active" : ""}"
+          data-action="set-roster-state"
+          data-adventurer-id="${adventurer.id}"
+          data-roster-state="active"
+          ${canPromote ? "" : "disabled"}
+        >Active</button>
+        <button
+          class="state-toggle${!active ? " is-active" : ""}"
+          data-action="set-roster-state"
+          data-adventurer-id="${adventurer.id}"
+          data-roster-state="reserve"
+        >Reserve</button>
+      </div>
+    </div>
   `;
 }
 
@@ -948,9 +1135,11 @@ function getReferenceEntry(id) {
   return getAllReferenceEntries().find((entry) => entry.id === id) ?? null;
 }
 
-function getPartyAdventurers() {
+function getRosterAdventurers() {
   const byId = new Map(state.adventurers.map((adventurer) => [adventurer.id, adventurer]));
-  return state.party.memberIds.map((id) => byId.get(id)).filter(Boolean);
+  return [...state.party.memberIds, ...state.party.reserveIds]
+    .map((id) => byId.get(id))
+    .filter(Boolean);
 }
 
 function getAdventurer(id) {
@@ -961,14 +1150,238 @@ function getCharacterTemplate(id, sourceState = state) {
   return sourceState?.cardCatalog?.characterCards?.find((card) => card.id === id) ?? null;
 }
 
+function getAdventurerTemplateId(adventurer) {
+  return adventurer?.profile?.templateId ?? adventurer?.id ?? null;
+}
+
+function getCharacterAsset(id, sourceState = state) {
+  return sourceState?.cardCatalog?.assets?.find((asset) => asset.normalizedCardId === id) ?? null;
+}
+
+function getAvailableCharacterTemplates() {
+  const usedTemplateIds = new Set(
+    state.adventurers.map((adventurer) => getAdventurerTemplateId(adventurer)).filter(Boolean)
+  );
+  return (state.cardCatalog?.characterCards ?? []).filter((template) => !usedTemplateIds.has(template.id));
+}
+
+function getProfessionOptions() {
+  const options = new Map();
+  professionCatalog.forEach((profession) => {
+    if (profession) {
+      options.set(profession.toLowerCase(), profession);
+    }
+  });
+
+  (state.cardCatalog?.referenceCards ?? []).forEach((card) => {
+    if (card?.name) {
+      options.set(card.name.toLowerCase(), card.name);
+    }
+  });
+
+  state.adventurers.forEach((adventurer) => {
+    const profession = getNormalizedProfessionValue(adventurer.profile.profession);
+    if (profession) {
+      options.set(profession.toLowerCase(), profession);
+    }
+  });
+
+  return [...options.values()].sort((left, right) => left.localeCompare(right));
+}
+
+function getNormalizedProfessionValue(value) {
+  const normalized = String(value ?? "").trim();
+  if (!normalized || /^TODO:/i.test(normalized)) {
+    return "";
+  }
+
+  return normalized;
+}
+
+function getDisplayProfession(adventurer) {
+  return getNormalizedProfessionValue(adventurer.profile.profession) || "Profession unassigned";
+}
+
+function syncBuilderSelections() {
+  const availableTemplates = getAvailableCharacterTemplates();
+  const professions = getProfessionOptions();
+
+  if (!availableTemplates.some((template) => template.id === ui.builderCharacterId)) {
+    ui.builderCharacterId = availableTemplates[0]?.id ?? "";
+  }
+
+  if (!professions.includes(ui.builderProfession)) {
+    ui.builderProfession = "";
+  }
+
+  if (!["active", "reserve"].includes(ui.builderPlacement)) {
+    ui.builderPlacement = state?.party?.memberIds?.length < ACTIVE_PARTY_LIMIT ? "active" : "reserve";
+  }
+}
+
+function isActiveRosterMember(adventurerId) {
+  return state.party.memberIds.includes(adventurerId);
+}
+
+function getRosterLabel(adventurerId) {
+  return isActiveRosterMember(adventurerId) ? "Active Party" : "Reserve";
+}
+
+function setAdventurerRosterState(adventurerId, rosterState) {
+  const adventurer = getAdventurer(adventurerId);
+  if (!adventurer) {
+    return false;
+  }
+
+  const isActive = state.party.memberIds.includes(adventurerId);
+  if (rosterState === "active" && !isActive && state.party.memberIds.length >= ACTIVE_PARTY_LIMIT) {
+    return false;
+  }
+
+  state.party.memberIds = state.party.memberIds.filter((id) => id !== adventurerId);
+  state.party.reserveIds = state.party.reserveIds.filter((id) => id !== adventurerId);
+
+  if (rosterState === "active") {
+    state.party.memberIds.push(adventurerId);
+    adventurer.status = "active";
+    return true;
+  }
+
+  state.party.reserveIds.push(adventurerId);
+  adventurer.status = "reserve";
+  return true;
+}
+
+function createAdventurerFromTemplate(templateId, profession, sourceState = state, forcedId = null) {
+  const template = getCharacterTemplate(templateId, sourceState);
+  if (!template) {
+    throw new Error(`Character template ${templateId} was not found.`);
+  }
+
+  const asset = getCharacterAsset(template.id, sourceState);
+  const capacities = clone(template.trackTemplate?.xpRowCapacities ?? []);
+  const badge = template.startingBadge ? clone(template.startingBadge) : null;
+  const learnedSkills = badge
+    ? [{
+      id: badge.id,
+      name: badge.name,
+      type: badge.type,
+      level: badge.type === "skill" ? (badge.level ?? 1) : badge.level ?? null
+    }]
+    : [];
+
+  return {
+    id: forcedId ?? template.id,
+    name: template.name,
+    status: "reserve",
+    profile: {
+      templateId: template.id,
+      species: template.species,
+      profession,
+      baseHealth: template.trackTemplate.health.baseValue,
+      baseSkill: template.trackTemplate.skill.baseValue,
+      baseMagic: template.trackTemplate.magic.baseValue,
+      baseActions: template.trackTemplate.actions.baseValue,
+      xpRank1: null,
+      xpPotentialByRank: capacities,
+      abilitySlots: [],
+      image: asset?.previewImagePath ?? null
+    },
+    campaignState: {
+      rank: 1,
+      xpMarksByRow: capacities.map(() => 0),
+      statIncreases: {
+        health: 0,
+        skill: 0,
+        magic: 0,
+        actions: 0
+      },
+      learnedSkills,
+      learnedSpells: [],
+      inventoryItemIds: [],
+      armourItemIds: [],
+      brokenItemIds: [],
+      missedQuestCount: 0,
+      participatedLastQuest: false,
+      notes: `Added from ${template.name}'s imported character card.`
+    },
+    trackerState: {
+      currentHealth: template.trackTemplate.health.baseValue,
+      currentSkill: template.trackTemplate.skill.baseValue,
+      currentMagic: template.trackTemplate.magic.baseValue,
+      currentActions: template.trackTemplate.actions.baseValue,
+      statusEffects: [],
+      notes: ""
+    }
+  };
+}
+
+function mergeAdventurerRecord(currentState, fallback, incoming) {
+  if (!incoming) {
+    normalizeAdventurer(currentState, fallback);
+    return fallback;
+  }
+
+  const merged = {
+    ...fallback,
+    ...incoming,
+    profile: {
+      ...fallback.profile,
+      ...incoming.profile,
+      xpPotentialByRank: Array.isArray(incoming.profile?.xpPotentialByRank)
+        ? clone(incoming.profile.xpPotentialByRank)
+        : fallback.profile.xpPotentialByRank,
+      abilitySlots: Array.isArray(incoming.profile?.abilitySlots)
+        ? clone(incoming.profile.abilitySlots)
+        : fallback.profile.abilitySlots
+    },
+    campaignState: {
+      ...fallback.campaignState,
+      ...incoming.campaignState,
+      xpMarksByRow: Array.isArray(incoming.campaignState?.xpMarksByRow)
+        ? clone(incoming.campaignState.xpMarksByRow)
+        : fallback.campaignState.xpMarksByRow,
+      learnedSkills: Array.isArray(incoming.campaignState?.learnedSkills)
+        ? clone(incoming.campaignState.learnedSkills)
+        : fallback.campaignState.learnedSkills,
+      learnedSpells: Array.isArray(incoming.campaignState?.learnedSpells)
+        ? clone(incoming.campaignState.learnedSpells)
+        : fallback.campaignState.learnedSpells,
+      inventoryItemIds: Array.isArray(incoming.campaignState?.inventoryItemIds)
+        ? clone(incoming.campaignState.inventoryItemIds)
+        : fallback.campaignState.inventoryItemIds,
+      armourItemIds: Array.isArray(incoming.campaignState?.armourItemIds)
+        ? clone(incoming.campaignState.armourItemIds)
+        : fallback.campaignState.armourItemIds,
+      brokenItemIds: Array.isArray(incoming.campaignState?.brokenItemIds)
+        ? clone(incoming.campaignState.brokenItemIds)
+        : fallback.campaignState.brokenItemIds,
+      statIncreases: {
+        ...fallback.campaignState.statIncreases,
+        ...incoming.campaignState?.statIncreases
+      }
+    },
+    trackerState: {
+      ...fallback.trackerState,
+      ...incoming.trackerState,
+      statusEffects: Array.isArray(incoming.trackerState?.statusEffects)
+        ? clone(incoming.trackerState.statusEffects)
+        : fallback.trackerState.statusEffects
+    }
+  };
+
+  normalizeAdventurer(currentState, merged);
+  return merged;
+}
+
 function getPrintedTrackCapacity(adventurer, track, sourceState = state) {
-  return getCharacterTemplate(adventurer.id, sourceState)?.trackTemplate?.[track]?.maxValue
+  return getCharacterTemplate(getAdventurerTemplateId(adventurer), sourceState)?.trackTemplate?.[track]?.maxValue
     ?? getMaxTrack(adventurer, track);
 }
 
 function getXpCapacities(adventurer, sourceState = state) {
   return adventurer.profile.xpPotentialByRank
-    ?? getCharacterTemplate(adventurer.id, sourceState)?.trackTemplate?.xpRowCapacities
+    ?? getCharacterTemplate(getAdventurerTemplateId(adventurer), sourceState)?.trackTemplate?.xpRowCapacities
     ?? [];
 }
 
@@ -1079,6 +1492,8 @@ function trackKey(track) {
 }
 
 function normalizeAdventurer(currentState, adventurer) {
+  adventurer.profile.templateId = adventurer.profile.templateId ?? adventurer.id;
+  adventurer.profile.profession = getNormalizedProfessionValue(adventurer.profile.profession) || null;
   const capacities = getXpCapacities(adventurer, currentState);
   const marks = Array.isArray(adventurer.campaignState.xpMarksByRow)
     ? [...adventurer.campaignState.xpMarksByRow]
@@ -1098,6 +1513,65 @@ function normalizeAdventurer(currentState, adventurer) {
   adventurer.trackerState.statusEffects = adventurer.trackerState.statusEffects.filter((effect, index, values) =>
     STATUS_EFFECTS.includes(effect) && values.indexOf(effect) === index
   );
+}
+
+function normalizePartyRoster(currentState) {
+  const adventurerById = new Map(currentState.adventurers.map((adventurer) => [adventurer.id, adventurer]));
+  const seen = new Set();
+
+  const memberIds = currentState.party.memberIds.filter((id) => {
+    if (seen.has(id) || !adventurerById.has(id)) {
+      return false;
+    }
+    seen.add(id);
+    return true;
+  });
+
+  const reserveIds = currentState.party.reserveIds.filter((id) => {
+    if (seen.has(id) || !adventurerById.has(id)) {
+      return false;
+    }
+    seen.add(id);
+    return true;
+  });
+
+  currentState.adventurers.forEach((adventurer) => {
+    if (seen.has(adventurer.id)) {
+      return;
+    }
+
+    if (adventurer.status === "active" && memberIds.length < ACTIVE_PARTY_LIMIT) {
+      memberIds.push(adventurer.id);
+      seen.add(adventurer.id);
+      return;
+    }
+
+    reserveIds.push(adventurer.id);
+    adventurer.status = "reserve";
+    seen.add(adventurer.id);
+  });
+
+  while (memberIds.length > ACTIVE_PARTY_LIMIT) {
+    const movedId = memberIds.pop();
+    reserveIds.unshift(movedId);
+  }
+
+  memberIds.forEach((id) => {
+    const adventurer = adventurerById.get(id);
+    if (adventurer) {
+      adventurer.status = "active";
+    }
+  });
+
+  reserveIds.forEach((id) => {
+    const adventurer = adventurerById.get(id);
+    if (adventurer && adventurer.status === "active") {
+      adventurer.status = "reserve";
+    }
+  });
+
+  currentState.party.memberIds = memberIds;
+  currentState.party.reserveIds = reserveIds;
 }
 
 function normalizeStatIncreases(currentState, adventurer) {
@@ -1153,10 +1627,10 @@ function restoreTracker(adventurer) {
 }
 
 function getDefaultReferenceId() {
-  const partyAdventurers = getPartyAdventurers();
+  const rosterAdventurers = getRosterAdventurers();
 
-  for (const adventurer of partyAdventurers) {
-    const template = getCharacterTemplate(adventurer.id);
+  for (const adventurer of rosterAdventurers) {
+    const template = getCharacterTemplate(getAdventurerTemplateId(adventurer));
     if (template?.startingBadge && getReferenceEntry(template.startingBadge.id)) {
       return template.startingBadge.id;
     }

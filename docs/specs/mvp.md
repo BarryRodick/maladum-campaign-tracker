@@ -2,7 +2,7 @@
 
 ## Goal
 
-Build a Maladum web app that starts from imported character-card data instead of sample placeholders. The MVP should make the scanned party usable at the table by turning the card scans into the UI itself: phone-first full-page swipe navigation, tap-to-track pips, a campaign swipe page, and linked rules text in a bottom sheet.
+Build a Maladum web app that starts from imported character-card data instead of sample placeholders. The MVP should make the scanned party usable at the table by turning the card scans into the UI itself: phone-first full-page swipe navigation, tap-to-track pips, a campaign swipe page with team management, and linked rules text in a bottom sheet.
 
 ## Primary User
 
@@ -19,12 +19,14 @@ The MVP is now schema-first:
 
 ## Core Jobs To Be Done
 
-- Open the app and immediately see the imported active party
-- Swipe between imported characters and the campaign page on a phone-sized screen
+- Open the app and immediately see the tracked team
+- Swipe between tracked characters and the campaign page on a phone-sized screen
 - Spend and restore live health, skill, magic, and action pips during play by tapping the printed card
 - Update imported XP rows between quests
 - Record permanent stat increases and per-card notes
 - Increase or decrease skill levels from the card overlay
+- Assign professions to tracked adventurers
+- Move adventurers between the active party and reserve
 - Tap a starting badge, skill, spell, or ability and see its rules text immediately
 - Export or import the full schema-backed save state
 
@@ -39,6 +41,7 @@ The MVP is now schema-first:
 ### 2. Imported card deck
 
 - Show the active party from `party.memberIds`
+- Keep reserve members in the same tracked roster
 - Render each imported scan as a full-page swipeable character card
 - Render card portrait, name, species, and card code inside the card overlay
 - Show starting badge, XP rows, and live tracks directly on the card
@@ -73,10 +76,15 @@ The MVP is now schema-first:
 - Import a saved schema state back into the app
 - Sanitize imported state against the seeded card definitions
 
+### 7. Team building
+
+- Assign a profession per adventurer from the campaign page
+- Move roster members between the active party and reserve
+- Add newly imported character-card templates to the tracked roster as they become available
+
 ## Explicit Non-goals For This MVP
 
-- Profession assignment workflow
-- Manual character creation UI
+- Arbitrary manual character creation without an imported card template
 - Inventory management
 - Quest log editing
 - Market, Escape, or Rest wizards
@@ -93,16 +101,15 @@ The MVP is now schema-first:
 
 ## Current Gaps
 
-- The imported card set does not prove which profession card belongs to which character, so the seed uses `TODO: assign profession`
+- The imported card set does not prove which profession card belongs to which character, so professions still need to be chosen manually in the app
 - Starting badge rules for `Persuasion`, `Entertainer`, and `Reflexes` are placeholders because no separate rules cards were scanned
 - `Focused Energy` is only partially transcribed because the scan is obscured
 - Full mandatory XP allocation into class-board skills and spell choices is still pending because the imported data does not yet map professions/class boards to the three scanned characters
 
 ## Suggested Next Build Step
 
-The next sensible move is campaign editing against the same schema:
+The next sensible move is deeper campaign editing against the same schema:
 
-- assign professions to party members
 - add or remove learned skills and spells
-- add reserve-member handling
 - begin wiring quest-log and item sections from the existing schema
+- let larger imported character catalogs feed the recruit flow directly

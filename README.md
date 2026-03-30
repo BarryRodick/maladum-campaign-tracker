@@ -1,6 +1,6 @@
 # Maladum Campaign Tracker
 
-Schema-first web app prototype for tracking imported Maladum character cards. The current build is phone-first and uses the scanned cards themselves as the main UI: a compact toolbar, full-viewport swipe pages, landscape card scans with direct pip hotspots, a dedicated campaign swipe page, and a rules bottom sheet.
+Schema-first web app prototype for tracking imported Maladum character cards. The current build is phone-first and uses the scanned cards themselves as the main UI: a compact toolbar, full-viewport swipe pages, landscape card scans with direct pip hotspots, a campaign page with team-building controls, and a rules bottom sheet.
 
 ## Current dataset
 
@@ -56,11 +56,14 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-smoke-test.ps1
 - Loads the app state from `imports/maladum-cards/schema-seed.json`
 - Uses `schemas/campaign-tracker.schema.json` as the save-state contract
 - Renders the imported cards in a full-viewport swipe deck instead of a generic dashboard
+- Tracks the whole roster, not just the current active party, by keeping active and reserve members in the same saved team state
 - Keeps the card scans in their native landscape aspect ratio so the printed pips align with the overlay
 - Tracks live health, skill, magic, action, and XP pips by tapping the printed circles on the scans
 - Uses the card's blank lower-right area as a progression dock for row-completion stat rewards and learned skill levels
 - Shows the printed starting badge as a hotspot and keeps later learned skills or spells in the same on-card progression dock
-- Adds a dedicated campaign swipe page for quest, stash, renown, delay, and notes
+- Adds a dedicated campaign swipe page for quest, stash, renown, delay, notes, and team-building
+- Allows profession assignment per adventurer from the campaign page
+- Allows active versus reserve roster management so the whole team can be tracked over time
 - Opens the rules library in a bottom sheet on mobile and a sticky sidebar on desktop
 - Searches a local lookup library across imported skills, spells, and abilities
 - Saves the full schema state to `localStorage`
@@ -85,8 +88,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-smoke-test.ps1
 ## Notes
 
 - The schema now allows variable-length XP rows so it can match the real printed character cards.
-- The imported seed now uses `TODO: assign profession` for the three scanned characters because the current card set does not prove which profession card belongs to which character.
+- The imported seed still starts with profession placeholders, but the app now lets you assign professions from the team-builder UI.
 - Relative asset paths are used inside the seed and catalog so the dataset works when served locally from the project root.
 - The current overlay calibration is tuned to the imported Maladum scans and assumes the same printed layout across this first card set.
 - Stat increases are now gated by completed XP rows in line with the rulebook.
+- The current recruit flow can add newly imported character templates to the tracked roster; it does not yet support arbitrary manual card creation.
 - Full mandatory XP allocation into class-board skills and spell choices is still pending because the imported character set does not yet include enough structured profession/class-board ownership data.

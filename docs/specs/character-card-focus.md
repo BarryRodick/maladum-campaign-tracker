@@ -12,6 +12,7 @@ Current design choice:
 - use the card image itself as the primary interaction surface
 - optimize the first-pass layout for phone play, with full-page swipe navigation between characters
 - move campaign management onto its own swipe page
+- let the campaign page manage the roster, not just passive campaign counters
 - use a bottom-sheet rules lookup on mobile instead of a long inline rules panel
 
 ## Current Card Set
@@ -28,7 +29,7 @@ Their portraits, starting badges, printed track values, and XP row layouts come 
 
 ### Swipe pages
 
-Show the active imported party as a horizontally swipeable full-page deck.
+Show the tracked team as a horizontally swipeable full-page deck.
 
 Each card should expose:
 
@@ -56,6 +57,9 @@ After the character pages, include one campaign page that holds:
 - renown
 - delay
 - campaign notes
+- team builder controls
+- profession assignment controls
+- active and reserve roster management
 
 ## Interaction Model
 
@@ -75,6 +79,8 @@ Used between quests.
 - tap imported XP rows to update progression
 - record permanent stat increases in the card's blank progression dock, but only when completed XP rows unlock them
 - raise or lower learned skill levels in the same progression dock
+- assign a profession to each tracked adventurer from the campaign page
+- move adventurers between the active party and reserve as the campaign grows
 - add notes for campaign-state changes
 - keep this state in `campaignState`
 
@@ -101,7 +107,7 @@ Use these layers:
 1. `campaign`
    Party-wide campaign identity and shared counters.
 2. `party`
-   Active member ordering and party-level grouping.
+   Active member ordering, reserve ordering, and party-level grouping.
 3. `adventurers[*].profile`
    Printed card values and persistent identity.
 4. `adventurers[*].campaignState`
@@ -121,13 +127,13 @@ Use these layers:
 - Overlay positions are currently calibrated against the imported landscape scan layout inside the app.
 - Rank is currently derived from the XP track rather than treated as a free manual field.
 - Stat increases are now gated by completed XP rows.
+- The campaign page now owns profession assignment and reserve-member support.
 - Full immediate XP allocation into class-board skills and spell choices is still pending because profession/class-board ownership is not yet structured in the imported seed.
 
 ## Next Build Step
 
-The next useful feature is not another sample UI pass. It is campaign editing against the same schema:
+The next useful feature is not another sample UI pass. It is deeper campaign editing against the same schema:
 
-- assign professions to imported characters
 - add or remove learned skills and spells from the dashboard
-- add party editing and reserve-member support
 - start recording quest log entries and item ownership
+- support recruiting from larger imported card sets without relying on the current three-character seed

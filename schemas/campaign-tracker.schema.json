@@ -226,6 +226,13 @@
         "abilitySlots"
       ],
       "properties": {
+        "templateId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
         "species": {
           "type": "string"
         },

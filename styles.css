@@ -60,7 +60,8 @@ body::before {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -73,7 +74,8 @@ button:disabled {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   border: 1px solid rgba(255, 232, 197, 0.18);
   border-radius: var(--radius-sm);
@@ -84,7 +86,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: none;
   border-color: rgba(245, 204, 117, 0.72);
   background: rgba(17, 10, 6, 0.48);
@@ -190,6 +193,15 @@ a {
 .page-dot.is-active {
   color: var(--ink);
   background: var(--accent-strong);
+}
+
+.page-dot.is-party:not(.is-active) {
+  color: var(--text-soft);
+}
+
+.page-dot.is-reserve:not(.is-active) {
+  color: var(--accent-cool);
+  background: rgba(140, 177, 193, 0.2);
 }
 
 /* ── Page deck (full-viewport swipe) ─────────── */
@@ -506,6 +518,108 @@ a {
   display: grid;
   gap: 0.55rem;
   padding: 0.85rem 0.9rem;
+}
+
+.team-builder {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0.95rem;
+}
+
+.team-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: rgba(255, 236, 205, 0.08);
+}
+
+.builder-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.field-action {
+  align-content: end;
+}
+
+.action-btn,
+.state-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.8rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 0;
+  border-radius: 14px;
+  color: var(--text);
+  background: rgba(255, 236, 205, 0.1);
+  transition: transform 140ms ease, background 140ms ease;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, rgba(38, 93, 81, 0.96), rgba(84, 127, 112, 0.98));
+}
+
+.action-btn:hover,
+.state-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.roster-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.roster-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 236, 205, 0.08);
+  background: rgba(255, 236, 205, 0.05);
+}
+
+.roster-meta {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.roster-meta strong {
+  display: block;
+  color: var(--text);
+}
+
+.roster-meta p {
+  margin: 0.16rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.roster-open {
+  min-height: 2.4rem;
+  white-space: nowrap;
+}
+
+.field-inline {
+  gap: 0.42rem;
+}
+
+.roster-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.state-toggle.is-active {
+  color: var(--ink);
+  background: var(--accent-strong);
 }
 
 .section-head {
@@ -880,6 +994,16 @@ code {
     padding: 0.95rem;
     grid-column: 1;
     margin-bottom: 0.85rem;
+  }
+
+  .builder-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .roster-card {
+    grid-template-columns: minmax(0, 1.2fr) minmax(12rem, 16rem) minmax(0, 0.8fr);
+    align-items: end;
   }
 
   .rules-sheet {

@@ -124,6 +124,11 @@ def click_slide_element(driver: webdriver.Chrome, adventurer_id: str, selector: 
     driver.execute_script("arguments[0].click();", element)
 
 
+def open_campaign_page(driver: webdriver.Chrome) -> None:
+    button = driver.find_element(By.CSS_SELECTOR, 'button[data-page-kind="campaign"]')
+    driver.execute_script("arguments[0].click();", button)
+
+
 def open_drawer(driver: webdriver.Chrome, adventurer_id: str, summary_text: str) -> None:
     focus_slide(driver, adventurer_id)
     summary = driver.find_element(
@@ -209,6 +214,62 @@ def main() -> int:
         check(
             "loads the imported roster",
             all(name in body_text for name in ["Unger", "Syrio", "Artain"]),
+        )
+
+        open_campaign_page(driver)
+        wait_until(
+            wait,
+            lambda current: bool(current.find_elements(By.CSS_SELECTOR, ".team-builder")),
+            "Team builder did not render on the campaign page.",
+        )
+        check(
+            "shows the team builder",
+            bool(driver.find_elements(By.CSS_SELECTOR, ".team-builder")),
+        )
+
+        team_builder_text = driver.find_element(By.CSS_SELECTOR, ".team-builder").text
+        check(
+            "explains when all imported cards are already tracked",
+            "All imported character cards are already being tracked." in team_builder_text,
+        )
+
+        driver.execute_script(
+            """
+            const select = document.querySelector(
+              'select[data-role="profession-field"][data-adventurer-id="character-unger"]'
+            );
+            select.value = arguments[0];
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            """,
+            "Marksman",
+        )
+        wait_until(
+            wait,
+            lambda current: get_adventurer_state(current, "character-unger")["profile"]["profession"] == "Marksman",
+            "Unger's profession did not persist from the team builder.",
+        )
+        check(
+            "can assign a profession from the team builder",
+            get_adventurer_state(driver, "character-unger")["profile"]["profession"] == "Marksman",
+        )
+
+        reserve_button = driver.find_element(
+            By.CSS_SELECTOR,
+            'button[data-action="set-roster-state"][data-adventurer-id="character-artain"][data-roster-state="reserve"]',
+        )
+        driver.execute_script("arguments[0].click();", reserve_button)
+        wait_until(
+            wait,
+            lambda current: "character-artain" in load_state(current)["party"]["reserveIds"],
+            "Artain did not move into the reserve roster.",
+        )
+        roster_state = load_state(driver)["party"]
+        reserve_dots = driver.find_elements(By.CSS_SELECTOR, ".page-dot.is-reserve")
+        check(
+            "tracks reserve members as part of the team",
+            "character-artain" in roster_state["reserveIds"]
+            and "character-artain" not in roster_state["memberIds"]
+            and len(reserve_dots) >= 1,
         )
 
         check(
