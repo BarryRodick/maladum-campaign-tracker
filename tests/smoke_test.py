@@ -431,12 +431,12 @@ def main() -> int:
             By.CSS_SELECTOR,
             (
                 'article.card-slide[data-adventurer-id="character-artain"] '
-                '.bonus-dock-card button[data-action="adjust-bonus"]'
+                '.progress-dock .reward-choice[data-action="adjust-bonus"]'
             ),
         )
         check(
-            "completed xp rows show on-card stat reward controls",
-            len(card_bonus_controls) == 8,
+            "completed xp rows show on-card stat reward choices",
+            len(card_bonus_controls) == 3,
             f"found {len(card_bonus_controls)} controls",
         )
 

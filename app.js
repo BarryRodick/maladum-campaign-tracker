@@ -714,10 +714,8 @@ function renderAdventurerSlide(adventurer) {
   const progressionState = getProgressionState(adventurer);
   const rosterLabel = getRosterLabel(adventurer.id);
   const cardProgressEntries = getProgressEntries(adventurer, { includeStartingBadge: false });
-  const showCardProgressDock =
-    progressionState.totalPicks > 0
-    || progressionState.totalUsed > 0
-    || cardProgressEntries.length > 0;
+  const cardRewardChoices = renderCardRewardChoices(adventurer);
+  const showCardProgressDock = Boolean(cardRewardChoices || cardProgressEntries.length > 0);
 
   return `
       <article class="card-slide" data-adventurer-id="${adventurer.id}">
@@ -737,11 +735,7 @@ function renderAdventurerSlide(adventurer) {
             </button>
             ${showCardProgressDock ? `
             <div class="progress-dock" style="${boxPosition(CARD_OVERLAY.dock)}">
-              ${progressionState.totalPicks || progressionState.totalUsed ? `
-                <div class="bonus-dock bonus-dock-card">
-                  ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track, true)).join("")}
-                </div>
-              ` : ""}
+              ${cardRewardChoices}
               ${cardProgressEntries.length ? `
               <div class="level-dock">
                 ${renderProgressEntries(adventurer, { includeStartingBadge: false, emptyMessage: "" })}
@@ -1023,6 +1017,29 @@ function renderBonusChip(adventurer, track, compact = false) {
       >+</button>
     </div>
     `;
+}
+
+function renderCardRewardChoices(adventurer) {
+  const selectableTracks = ["health", "skill", "magic", "actions"].filter((track) => canIncreaseStat(adventurer, track));
+  if (!selectableTracks.length) {
+    return "";
+  }
+
+  return `
+    <div class="reward-choice-grid">
+      ${selectableTracks.map((track) => `
+        <button
+          class="reward-choice"
+          data-action="adjust-bonus"
+          data-adventurer-id="${adventurer.id}"
+          data-track="${track}"
+          data-amount="1"
+        >
+          ${escapeHtml(`${getTrackChipLabel(track)} +1`)}
+        </button>
+      `).join("")}
+    </div>
+  `;
 }
 
 function getProgressEntries(adventurer, options = {}) {
