@@ -1,0 +1,415 @@
+{
+  "assets": [
+    {
+      "id": "asset-reference-marksman",
+      "filename": "reference-marksman.pdf",
+      "importSource": "local-pdf",
+      "category": "reference-card",
+      "localPath": "imports/maladum-cards/reference-marksman.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/reference-marksman.jpg",
+      "title": "Marksman",
+      "normalizedCardId": "reference-marksman",
+      "notes": "Profession reference card."
+    },
+    {
+      "id": "asset-spell-primorist",
+      "filename": "spell-primorist.pdf",
+      "importSource": "local-pdf",
+      "category": "reference-card",
+      "localPath": "imports/maladum-cards/spell-primorist.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/spell-primorist.jpg",
+      "title": "Primorist",
+      "normalizedCardId": "spell-primorist",
+      "notes": "Spell card used to track available Primorist spells."
+    },
+    {
+      "id": "asset-reference-magus",
+      "filename": "reference-magus.pdf",
+      "importSource": "local-pdf",
+      "category": "reference-card",
+      "localPath": "imports/maladum-cards/reference-magus.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/reference-magus.jpg",
+      "title": "Magus",
+      "normalizedCardId": "reference-magus",
+      "notes": "Profession reference card."
+    },
+    {
+      "id": "asset-reference-guardian",
+      "filename": "reference-guardian.pdf",
+      "importSource": "local-pdf",
+      "category": "reference-card",
+      "localPath": "imports/maladum-cards/reference-guardian.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/reference-guardian.jpg",
+      "title": "Guardian",
+      "normalizedCardId": "reference-guardian",
+      "notes": "Profession reference card."
+    },
+    {
+      "id": "asset-reference-rogue",
+      "filename": "reference-rogue.pdf",
+      "importSource": "local-pdf",
+      "category": "reference-card",
+      "localPath": "imports/maladum-cards/reference-rogue.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/reference-rogue.jpg",
+      "title": "Rogue",
+      "normalizedCardId": "reference-rogue",
+      "notes": "Profession reference card."
+    },
+    {
+      "id": "asset-character-unger-q73",
+      "filename": "character-unger-q73.pdf",
+      "importSource": "local-pdf",
+      "category": "character-card",
+      "localPath": "imports/maladum-cards/character-unger-q73.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/character-unger-q73.jpg",
+      "title": "Unger",
+      "cardCode": "Q73",
+      "normalizedCardId": "character-unger",
+      "notes": "Character card. Species and badge visible."
+    },
+    {
+      "id": "asset-character-syrio-q64",
+      "filename": "character-syrio-q64.pdf",
+      "importSource": "local-pdf",
+      "category": "character-card",
+      "localPath": "imports/maladum-cards/character-syrio-q64.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/character-syrio-q64.jpg",
+      "title": "Syrio",
+      "cardCode": "Q64",
+      "normalizedCardId": "character-syrio",
+      "notes": "Character card. Species and badge visible."
+    },
+    {
+      "id": "asset-character-artain-q61",
+      "filename": "character-artain-q61.pdf",
+      "importSource": "local-pdf",
+      "category": "character-card",
+      "localPath": "imports/maladum-cards/character-artain-q61.pdf",
+      "previewImagePath": "imports/maladum-cards/_previews/character-artain-q61.jpg",
+      "title": "Artain",
+      "cardCode": "Q61",
+      "normalizedCardId": "character-artain",
+      "notes": "Character card. Species and badge visible."
+    }
+  ],
+  "characterCards": [
+    {
+      "id": "character-unger",
+      "name": "Unger",
+      "cardCode": "Q73",
+      "species": "Tregar",
+      "startingBadge": {
+        "id": "persuasion",
+        "name": "Persuasion",
+        "type": "ability",
+        "level": null
+      },
+      "trackTemplate": {
+        "health": {
+          "baseValue": 3,
+          "maxValue": 5,
+          "upgradeSlots": 2
+        },
+        "skill": {
+          "baseValue": 2,
+          "maxValue": 5,
+          "upgradeSlots": 3
+        },
+        "magic": {
+          "baseValue": 2,
+          "maxValue": 4,
+          "upgradeSlots": 2
+        },
+        "actions": {
+          "baseValue": 2,
+          "maxValue": 3,
+          "upgradeSlots": 1
+        },
+        "xpRowCapacities": [
+          5,
+          5,
+          4,
+          4
+        ]
+      },
+      "effectSlots": 1,
+      "sourceAssetIds": [
+        "asset-character-unger-q73"
+      ],
+      "notes": "XP rows were counted directly from the scanned card face. Current marked progress is captured in schema-seed.json for Unger."
+    },
+    {
+      "id": "character-syrio",
+      "name": "Syrio",
+      "cardCode": "Q64",
+      "species": "Eid",
+      "startingBadge": {
+        "id": "reflexes",
+        "name": "Reflexes",
+        "type": "skill",
+        "level": 1
+      },
+      "trackTemplate": {
+        "health": {
+          "baseValue": 4,
+          "maxValue": 6,
+          "upgradeSlots": 2
+        },
+        "skill": {
+          "baseValue": 1,
+          "maxValue": 4,
+          "upgradeSlots": 3
+        },
+        "magic": {
+          "baseValue": 1,
+          "maxValue": 4,
+          "upgradeSlots": 3
+        },
+        "actions": {
+          "baseValue": 2,
+          "maxValue": 2,
+          "upgradeSlots": 0
+        },
+        "xpRowCapacities": [
+          5,
+          4,
+          4,
+          3
+        ]
+      },
+      "effectSlots": 1,
+      "sourceAssetIds": [
+        "asset-character-syrio-q64"
+      ],
+      "notes": "XP rows were counted directly from the scanned card face. Current marked progress is captured in schema-seed.json for Syrio."
+    },
+    {
+      "id": "character-artain",
+      "name": "Artain",
+      "cardCode": "Q61",
+      "species": "Human",
+      "startingBadge": {
+        "id": "entertainer",
+        "name": "Entertainer",
+        "type": "ability",
+        "level": null
+      },
+      "trackTemplate": {
+        "health": {
+          "baseValue": 3,
+          "maxValue": 5,
+          "upgradeSlots": 2
+        },
+        "skill": {
+          "baseValue": 2,
+          "maxValue": 4,
+          "upgradeSlots": 2
+        },
+        "magic": {
+          "baseValue": 2,
+          "maxValue": 5,
+          "upgradeSlots": 3
+        },
+        "actions": {
+          "baseValue": 2,
+          "maxValue": 2,
+          "upgradeSlots": 0
+        },
+        "xpRowCapacities": [
+          4,
+          4,
+          3,
+          3
+        ]
+      },
+      "effectSlots": 1,
+      "sourceAssetIds": [
+        "asset-character-artain-q61"
+      ],
+      "notes": "XP rows were counted directly from the scanned card face. Current marked progress is captured in schema-seed.json for Artain."
+    }
+  ],
+  "referenceCards": [
+    {
+      "id": "reference-marksman",
+      "name": "Marksman",
+      "kind": "profession",
+      "sourceAssetIds": [
+        "asset-reference-marksman"
+      ],
+      "abilities": [
+        {
+          "id": "hawkeye",
+          "name": "Hawkeye",
+          "entries": [
+            {
+              "mode": "passive",
+              "text": "Ranged attacks ignore cover. May fire at engaged characters without randomising target."
+            }
+          ]
+        },
+        {
+          "id": "ambush",
+          "name": "Ambush",
+          "entries": []
+        },
+        {
+          "id": "bullseye",
+          "name": "Bullseye",
+          "entries": []
+        },
+        {
+          "id": "countershot",
+          "name": "Countershot",
+          "entries": []
+        }
+      ]
+    },
+    {
+      "id": "spell-primorist",
+      "name": "Primorist",
+      "kind": "spell-card",
+      "sourceAssetIds": [
+        "asset-spell-primorist"
+      ],
+      "abilities": [
+        {
+          "id": "focused-energy",
+          "name": "Focused Energy",
+          "entries": []
+        },
+        {
+          "id": "open-door",
+          "name": "Open Door",
+          "entries": []
+        },
+        {
+          "id": "telekinesis",
+          "name": "Telekinesis",
+          "entries": []
+        },
+        {
+          "id": "extinguish",
+          "name": "Extinguish",
+          "entries": []
+        },
+        {
+          "id": "detect",
+          "name": "Detect",
+          "entries": []
+        },
+        {
+          "id": "protect",
+          "name": "Protect",
+          "entries": []
+        },
+        {
+          "id": "invisibility",
+          "name": "Invisibility",
+          "entries": []
+        },
+        {
+          "id": "advanced-telekinesis",
+          "name": "Advanced Telekinesis",
+          "entries": []
+        }
+      ]
+    },
+    {
+      "id": "reference-magus",
+      "name": "Magus",
+      "kind": "profession",
+      "sourceAssetIds": [
+        "asset-reference-magus"
+      ],
+      "abilities": [
+        {
+          "id": "fortified-mind",
+          "name": "Fortified Mind",
+          "entries": []
+        },
+        {
+          "id": "frenzy",
+          "name": "Frenzy",
+          "entries": []
+        },
+        {
+          "id": "intimidating",
+          "name": "Intimidating",
+          "entries": []
+        }
+      ]
+    },
+    {
+      "id": "reference-guardian",
+      "name": "Guardian",
+      "kind": "profession",
+      "sourceAssetIds": [
+        "asset-reference-guardian"
+      ],
+      "abilities": [
+        {
+          "id": "starting-health-bonus",
+          "name": "Increase Starting Health by 1",
+          "entries": [
+            {
+              "mode": "passive",
+              "text": "Increase starting Health by 1."
+            }
+          ]
+        },
+        {
+          "id": "brutal-assault",
+          "name": "Brutal Assault",
+          "entries": []
+        },
+        {
+          "id": "frenzy",
+          "name": "Frenzy",
+          "entries": []
+        },
+        {
+          "id": "impervious",
+          "name": "Impervious",
+          "entries": []
+        },
+        {
+          "id": "onslaught",
+          "name": "Onslaught",
+          "entries": []
+        }
+      ]
+    },
+    {
+      "id": "reference-rogue",
+      "name": "Rogue",
+      "kind": "profession",
+      "sourceAssetIds": [
+        "asset-reference-rogue"
+      ],
+      "abilities": [
+        {
+          "id": "camouflage",
+          "name": "Camouflage",
+          "entries": []
+        },
+        {
+          "id": "distraction",
+          "name": "Distraction",
+          "entries": []
+        },
+        {
+          "id": "duck-for-cover",
+          "name": "Duck for Cover",
+          "entries": []
+        },
+        {
+          "id": "light-fingers",
+          "name": "Light Fingers",
+          "entries": []
+        }
+      ]
+    }
+  ],
+  "notes": "This catalog separates raw scan assets from normalized card definitions. Character cards now include counted XP row capacities from the March 29, 2026 scans. Campaign-specific live progress remains in schema-seed.json."
+}

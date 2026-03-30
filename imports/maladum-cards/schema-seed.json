@@ -1,0 +1,1052 @@
+{
+  "version": 1,
+  "campaign": {
+    "id": "scan-import-2026-03-29",
+    "name": "Imported Maladum Card Set",
+    "ruleset": "custom",
+    "currentQuestId": "unassigned",
+    "nextQuestOptions": [],
+    "delay": 0,
+    "renown": 0,
+    "stash": 0,
+    "secureStorageEnabled": false,
+    "notes": "Seed campaign generated from scanned character, profession, and spell cards. Profession assignment to individual characters is not inferred from this card set. XP row capacities and current XP marks were counted directly from the character card scans. Focused Energy on the Primorist card is partially obscured by glare."
+  },
+  "party": {
+    "id": "party-imported-cards",
+    "name": "Imported Party",
+    "memberIds": [
+      "character-unger",
+      "character-syrio",
+      "character-artain"
+    ],
+    "reserveIds": [],
+    "storageItemIds": []
+  },
+  "adventurers": [
+    {
+      "id": "character-unger",
+      "name": "Unger",
+      "status": "active",
+      "profile": {
+        "species": "Tregar",
+        "profession": "TODO: assign profession",
+        "baseHealth": 3,
+        "baseSkill": 2,
+        "baseMagic": 2,
+        "baseActions": 2,
+        "xpRank1": null,
+        "xpPotentialByRank": [
+          5,
+          5,
+          4,
+          4
+        ],
+        "abilitySlots": [],
+        "image": "imports/maladum-cards/_previews/character-unger-q73.jpg"
+      },
+      "campaignState": {
+        "rank": 1,
+        "xpMarksByRow": [
+          2,
+          0,
+          0,
+          0
+        ],
+        "statIncreases": {
+          "health": 0,
+          "skill": 0,
+          "magic": 0,
+          "actions": 0
+        },
+        "learnedSkills": [
+          {
+            "id": "persuasion",
+            "name": "Persuasion",
+            "type": "ability",
+            "level": null
+          }
+        ],
+        "learnedSpells": [],
+        "inventoryItemIds": [],
+        "armourItemIds": [],
+        "brokenItemIds": [],
+        "missedQuestCount": 0,
+        "participatedLastQuest": false,
+        "notes": "Imported from character-unger-q73.pdf. XP rows imported from the scanned card."
+      },
+      "trackerState": {
+        "currentHealth": 3,
+        "currentSkill": 2,
+        "currentMagic": 2,
+        "currentActions": 2,
+        "statusEffects": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "character-syrio",
+      "name": "Syrio",
+      "status": "active",
+      "profile": {
+        "species": "Eid",
+        "profession": "TODO: assign profession",
+        "baseHealth": 4,
+        "baseSkill": 1,
+        "baseMagic": 1,
+        "baseActions": 2,
+        "xpRank1": null,
+        "xpPotentialByRank": [
+          5,
+          4,
+          4,
+          3
+        ],
+        "abilitySlots": [],
+        "image": "imports/maladum-cards/_previews/character-syrio-q64.jpg"
+      },
+      "campaignState": {
+        "rank": 1,
+        "xpMarksByRow": [
+          3,
+          0,
+          0,
+          0
+        ],
+        "statIncreases": {
+          "health": 0,
+          "skill": 0,
+          "magic": 0,
+          "actions": 0
+        },
+        "learnedSkills": [
+          {
+            "id": "reflexes",
+            "name": "Reflexes",
+            "type": "skill",
+            "level": 1
+          }
+        ],
+        "learnedSpells": [],
+        "inventoryItemIds": [],
+        "armourItemIds": [],
+        "brokenItemIds": [],
+        "missedQuestCount": 0,
+        "participatedLastQuest": false,
+        "notes": "Imported from character-syrio-q64.pdf. XP rows imported from the scanned card."
+      },
+      "trackerState": {
+        "currentHealth": 4,
+        "currentSkill": 1,
+        "currentMagic": 1,
+        "currentActions": 2,
+        "statusEffects": [],
+        "notes": ""
+      }
+    },
+    {
+      "id": "character-artain",
+      "name": "Artain",
+      "status": "active",
+      "profile": {
+        "species": "Human",
+        "profession": "TODO: assign profession",
+        "baseHealth": 3,
+        "baseSkill": 2,
+        "baseMagic": 2,
+        "baseActions": 2,
+        "xpRank1": null,
+        "xpPotentialByRank": [
+          4,
+          4,
+          3,
+          3
+        ],
+        "abilitySlots": [],
+        "image": "imports/maladum-cards/_previews/character-artain-q61.jpg"
+      },
+      "campaignState": {
+        "rank": 1,
+        "xpMarksByRow": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "statIncreases": {
+          "health": 0,
+          "skill": 0,
+          "magic": 0,
+          "actions": 0
+        },
+        "learnedSkills": [
+          {
+            "id": "entertainer",
+            "name": "Entertainer",
+            "type": "ability",
+            "level": null
+          }
+        ],
+        "learnedSpells": [],
+        "inventoryItemIds": [],
+        "armourItemIds": [],
+        "brokenItemIds": [],
+        "missedQuestCount": 0,
+        "participatedLastQuest": false,
+        "notes": "Imported from character-artain-q61.pdf. XP rows imported from the scanned card."
+      },
+      "trackerState": {
+        "currentHealth": 3,
+        "currentSkill": 2,
+        "currentMagic": 2,
+        "currentActions": 2,
+        "statusEffects": [],
+        "notes": ""
+      }
+    }
+  ],
+  "items": [],
+  "questLog": [],
+  "referenceLibrary": {
+    "skills": [
+      {
+        "id": "reflexes",
+        "name": "Reflexes",
+        "type": "skill",
+        "rulesText": "Named on Syrio's character card. The current scan set does not include a separate rules card for this skill.",
+        "tags": [
+          "starting-badge",
+          "character-card",
+          "missing-rules-text"
+        ],
+        "source": {
+          "name": "character-syrio-q64.pdf",
+          "url": "imports/maladum-cards/character-syrio-q64.pdf"
+        },
+        "level": 1
+      },
+      {
+        "id": "ambush",
+        "name": "Ambush",
+        "type": "skill",
+        "rulesText": "1. Use when enemy ends Move within 4 squares and you are in cover. Make a Ranged Attack against them. You may Dash before or after.\n2. Use when enemy ends Move within 4 squares and you are in cover. Make a Move and then an Attack against them. You may Dash once before or after either action.\n3. Use when enemy ends Move within 4 squares and you are in cover. Make a Move, an Attack, and a Move. You may Dash once before or after any of these actions.",
+        "tags": [
+          "marksman",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-marksman.pdf",
+          "url": "imports/maladum-cards/reference-marksman.pdf"
+        },
+        "mode": "reaction"
+      },
+      {
+        "id": "bullseye",
+        "name": "Bullseye",
+        "type": "skill",
+        "rulesText": "1. Make short-range Ranged Attack. Do not roll. Scores 1 hit, ignoring cover.\n2. Make medium-range Ranged Attack. Do not roll. Scores 1 hit, ignoring cover and physical armour.\n3. Make medium-range Ranged Attack. Do not roll. Scores 2 hits, ignoring cover and physical armour.",
+        "tags": [
+          "marksman",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-marksman.pdf",
+          "url": "imports/maladum-cards/reference-marksman.pdf"
+        },
+        "mode": "active"
+      },
+      {
+        "id": "countershot",
+        "name": "Countershot",
+        "type": "skill",
+        "rulesText": "1. Use when targeted with ranged attack/spell, before resolving. Make Ranged Attack/cast spell against attacker.\n2. Use at any time after target enemy takes first action each round. Make Ranged Attack/cast spell against target.\n3. Use any time. Make Ranged Attack/cast spell against enemy with +1 die, then Move.",
+        "tags": [
+          "marksman",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-marksman.pdf",
+          "url": "imports/maladum-cards/reference-marksman.pdf"
+        },
+        "mode": "reaction"
+      },
+      {
+        "id": "fortified-mind",
+        "name": "Fortified Mind",
+        "type": "skill",
+        "rulesText": "1. Use before casting a spell to cast it while engaged.\n2. Reaction: Use when friend in short range suffers an attack. Use this character's magical armour. Pegs from this character and/or target may be used. Magic Die effects are applied to this character.\n3. Until end of round, all spells targeting friends in short range are resisted for free (unless they are Unstoppable). Attacks against friends in short range may use this character's magical armour. Pegs from this character and/or target may be used. Magic Die effects are applied to this character. Passive: When casting spells of level lower than rank, do not become Fatigued after Mental Overload result.",
+        "tags": [
+          "magus",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-magus.pdf",
+          "url": "imports/maladum-cards/reference-magus.pdf"
+        }
+      },
+      {
+        "id": "frenzy-magus",
+        "name": "Frenzy",
+        "type": "skill",
+        "rulesText": "1. Use before melee attack to roll +2 dice.\n2. Use before melee attack to roll +3 dice.\n3. Use before melee attack to roll +4 dice. Hits may be split between targets in range of weapon. Additional effects are applied to all enemies hit. Passive: Gain First Strike.",
+        "tags": [
+          "magus",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-magus.pdf",
+          "url": "imports/maladum-cards/reference-magus.pdf"
+        },
+        "mode": "active"
+      },
+      {
+        "id": "intimidating",
+        "name": "Intimidating",
+        "type": "skill",
+        "rulesText": "1. Reaction: Use when enemy in LoS activates. Choose their target.\n2. Reaction: Use when enemy enters LoS or starts turn in LoS. Their turn ends and they are Stunned. Passive: As an effortless action, take an action with friend in short range. Then become Fatigued.\n3. All enemies up to this character's rank within short range and LoS are Stunned and Terrified. Passive: Gain Terrifying.",
+        "tags": [
+          "magus",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-magus.pdf",
+          "url": "imports/maladum-cards/reference-magus.pdf"
+        }
+      },
+      {
+        "id": "brutal-assault",
+        "name": "Brutal Assault",
+        "type": "skill",
+        "rulesText": "1. Make a Melee Attack using +1 dice. Lay target prone.\n2. Choose character engaged with you up to your size. Move them to any square in short range and LoS with no AoO. They suffer attack with +1 dice, adding 1 die if they hit a wall or terrain piece. Lay them prone. If they hit a character, it suffers the same attack. Passive: Ignore Cumbersome for melee weapons.\n3. Make up to three Melee Attacks with +1 dice. Lay target prone. Then Move.",
+        "tags": [
+          "guardian",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-guardian.pdf",
+          "url": "imports/maladum-cards/reference-guardian.pdf"
+        },
+        "mode": "active"
+      },
+      {
+        "id": "frenzy-guardian",
+        "name": "Frenzy",
+        "type": "skill",
+        "rulesText": "1. Use before melee attack to roll +2 dice.\n2. Use before melee attack to roll +3 dice.",
+        "tags": [
+          "guardian",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-guardian.pdf",
+          "url": "imports/maladum-cards/reference-guardian.pdf"
+        },
+        "mode": "active"
+      },
+      {
+        "id": "impervious",
+        "name": "Impervious",
+        "type": "skill",
+        "rulesText": "1. Reaction: Use when you would suffer a status counter. Discard it.\n2. Gain +2 armour until end of round.\n3. Restore 1 Health (even above starting level). Discard any status counters. You may ignore all damage, resist all spells, and discard all status counters suffered until end of round.",
+        "tags": [
+          "guardian",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-guardian.pdf",
+          "url": "imports/maladum-cards/reference-guardian.pdf"
+        }
+      },
+      {
+        "id": "onslaught",
+        "name": "Onslaught",
+        "type": "skill",
+        "rulesText": "1. Reaction: Use after scoring hits in melee. Make a Melee Attack.\n2. Reaction: Use after scoring hits with an attack. You may Move and then make a Melee Attack.\n3. Use during a Move. Ignore AoO. You may make a Melee Attack against each enemy engaged while moving.",
+        "tags": [
+          "guardian",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-guardian.pdf",
+          "url": "imports/maladum-cards/reference-guardian.pdf"
+        }
+      },
+      {
+        "id": "camouflage",
+        "name": "Camouflage",
+        "type": "skill",
+        "rulesText": "1. While in contact with a wall you cannot be targeted until end of round. Enemies can move through adjacent squares without stopping or suffering AoO but cannot end a Move in contact with you. You do not block LoS.\n2. Make a Move or Ranged Attack. Then, while in contact with any terrain you cannot be targeted until end of round, as above.\n3. While not in contact with an enemy you cannot be targeted until end of round, as above. Passive reaction: At any time while this skill is active (including midway through an enemy Move) make a Ranged Attack and become Fatigued.",
+        "tags": [
+          "rogue",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-rogue.pdf",
+          "url": "imports/maladum-cards/reference-rogue.pdf"
+        }
+      },
+      {
+        "id": "distraction",
+        "name": "Distraction",
+        "type": "skill",
+        "rulesText": "1. A character in medium range and LoS is Fatigued.\n2. Make a Ranged Attack/Throw. Target or other enemy in short range of target suffers 2 Fatigue in addition to other effects. Then Move.\n3. Choose character in medium range and LoS. Move them (may not engage or cause harm). They suffer 2 Fatigue. In any order, before or after moving target, you may Move and Attack.",
+        "tags": [
+          "rogue",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-rogue.pdf",
+          "url": "imports/maladum-cards/reference-rogue.pdf"
+        },
+        "mode": "active"
+      },
+      {
+        "id": "duck-for-cover",
+        "name": "Duck for Cover",
+        "type": "skill",
+        "rulesText": "1. Use when targeted with ranged attack or spell when within 4 squares of cover. Move into cover.\n2. Use when targeted with ranged attack or spell when within 4 squares of cover. Move into cover and ignore effects of attack.\n3. Use any time. In any order, Move into cover ignoring AoO and Attack. You cannot be targeted until end of round while still.",
+        "tags": [
+          "rogue",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-rogue.pdf",
+          "url": "imports/maladum-cards/reference-rogue.pdf"
+        },
+        "mode": "reaction"
+      },
+      {
+        "id": "light-fingers",
+        "name": "Light Fingers",
+        "type": "skill",
+        "rulesText": "1. Reaction: Use after suffering zero-damage melee attack. Take item from attacker (not attacking weapon), dropping an item if no space.\n2. Move into contact and Pickpocket. Then Move with no AoO.\n3. Passive: You may Pickpocket as standard. Pickpocket: When in contact with character, roll combat die. Skull: No effect. Blank: Scatter random item. Burst: Take non-large item. Double burst: Take item of choice and target is prone. Target may spend Skill peg to cancel effect.",
+        "tags": [
+          "rogue",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-rogue.pdf",
+          "url": "imports/maladum-cards/reference-rogue.pdf"
+        }
+      }
+    ],
+    "spells": [
+      {
+        "id": "focused-energy",
+        "name": "Focused Energy",
+        "type": "spell",
+        "rulesText": "X dice ranged attack. Additional effect icons are partly obscured by glare in the scan.",
+        "tags": [
+          "primorist",
+          "spell-card",
+          "partial-transcription"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 1,
+        "mode": "active"
+      },
+      {
+        "id": "open-door",
+        "name": "Open Door",
+        "type": "spell",
+        "rulesText": "Open or close unlocked door. Lock or unlock door or terrain piece.",
+        "tags": [
+          "primorist",
+          "spell-card"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 1,
+        "mode": "active"
+      },
+      {
+        "id": "telekinesis",
+        "name": "Telekinesis",
+        "type": "spell",
+        "rulesText": "Choose one: Move loose item, friend's item, or random item in unlocked terrain X+2 squares. If item reaches friend they take it. If weapon reaches enemy, treat as thrown at them. Add Burning counter to target within X+2 squares of fire.",
+        "tags": [
+          "primorist",
+          "spell-card"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 1,
+        "mode": "active"
+      },
+      {
+        "id": "extinguish",
+        "name": "Extinguish",
+        "type": "spell",
+        "rulesText": "Remove a Burning counter, Torch or Sconce.",
+        "tags": [
+          "primorist",
+          "spell-card"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 1,
+        "mode": "active"
+      },
+      {
+        "id": "detect",
+        "name": "Detect",
+        "type": "spell",
+        "rulesText": "Use during General Search to take X additional items (max. 3). Resolve traps. Scatter other items.",
+        "tags": [
+          "primorist",
+          "spell-card",
+          "search"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 1
+      },
+      {
+        "id": "protect",
+        "name": "Protect",
+        "type": "spell",
+        "rulesText": "Target gains +X armour until end of round.",
+        "tags": [
+          "primorist",
+          "spell-card"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 1,
+        "mode": "active"
+      },
+      {
+        "id": "invisibility",
+        "name": "Invisibility",
+        "type": "spell",
+        "rulesText": "Gain listed effects until end of round. X=1: Cannot be targeted beyond short range. X=2: Cannot be targeted by non-adjacent enemies. Do not block LoS. X=3+: Cannot be targeted. Ignore attacks of opportunity. Do not block LoS. Only block movement if you choose to.",
+        "tags": [
+          "primorist",
+          "spell-card"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 2,
+        "mode": "active"
+      },
+      {
+        "id": "advanced-telekinesis",
+        "name": "Advanced Telekinesis",
+        "type": "spell",
+        "rulesText": "Choose one: Move terrain up to X+2 squares. If it reaches a character, stop and treat as X+2 dice Knockback. Move enemy's item up to X+2 squares. They may spend Skill peg to scatter it instead. If item reaches friend they take it. If weapon reaches enemy, treat as thrown at them.",
+        "tags": [
+          "primorist",
+          "spell-card"
+        ],
+        "source": {
+          "name": "spell-primorist.pdf",
+          "url": "imports/maladum-cards/spell-primorist.pdf"
+        },
+        "level": 2,
+        "mode": "active"
+      }
+    ],
+    "abilities": [
+      {
+        "id": "persuasion",
+        "name": "Persuasion",
+        "type": "ability",
+        "rulesText": "Named on Unger's character card. The current scan set does not include a separate rules card for this ability.",
+        "tags": [
+          "starting-badge",
+          "character-card",
+          "missing-rules-text"
+        ],
+        "source": {
+          "name": "character-unger-q73.pdf",
+          "url": "imports/maladum-cards/character-unger-q73.pdf"
+        }
+      },
+      {
+        "id": "entertainer",
+        "name": "Entertainer",
+        "type": "ability",
+        "rulesText": "Named on Artain's character card. The current scan set does not include a separate rules card for this ability.",
+        "tags": [
+          "starting-badge",
+          "character-card",
+          "missing-rules-text"
+        ],
+        "source": {
+          "name": "character-artain-q61.pdf",
+          "url": "imports/maladum-cards/character-artain-q61.pdf"
+        }
+      },
+      {
+        "id": "hawkeye",
+        "name": "Hawkeye",
+        "type": "ability",
+        "rulesText": "Ranged attacks ignore cover. May fire at engaged characters without randomising target.",
+        "tags": [
+          "marksman",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-marksman.pdf",
+          "url": "imports/maladum-cards/reference-marksman.pdf"
+        },
+        "mode": "passive"
+      },
+      {
+        "id": "starting-health-bonus",
+        "name": "Increase Starting Health by 1",
+        "type": "ability",
+        "rulesText": "Increase starting Health by 1.",
+        "tags": [
+          "guardian",
+          "profession"
+        ],
+        "source": {
+          "name": "reference-guardian.pdf",
+          "url": "imports/maladum-cards/reference-guardian.pdf"
+        },
+        "mode": "passive"
+      }
+    ]
+  },
+  "imports": [
+    {
+      "source": "manual",
+      "importedAt": "2026-03-29T22:17:57+01:00",
+      "payload": {
+        "sourceFolder": "imports/maladum-cards",
+        "notes": "Generated from the renamed local PDF scans and preview images."
+      }
+    }
+  ],
+  "cardCatalog": {
+    "assets": [
+      {
+        "id": "asset-reference-marksman",
+        "filename": "reference-marksman.pdf",
+        "importSource": "local-pdf",
+        "category": "reference-card",
+        "localPath": "imports/maladum-cards/reference-marksman.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/reference-marksman.jpg",
+        "title": "Marksman",
+        "normalizedCardId": "reference-marksman",
+        "notes": "Profession reference card."
+      },
+      {
+        "id": "asset-spell-primorist",
+        "filename": "spell-primorist.pdf",
+        "importSource": "local-pdf",
+        "category": "reference-card",
+        "localPath": "imports/maladum-cards/spell-primorist.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/spell-primorist.jpg",
+        "title": "Primorist",
+        "normalizedCardId": "spell-primorist",
+        "notes": "Spell card used to track available Primorist spells."
+      },
+      {
+        "id": "asset-reference-magus",
+        "filename": "reference-magus.pdf",
+        "importSource": "local-pdf",
+        "category": "reference-card",
+        "localPath": "imports/maladum-cards/reference-magus.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/reference-magus.jpg",
+        "title": "Magus",
+        "normalizedCardId": "reference-magus",
+        "notes": "Profession reference card."
+      },
+      {
+        "id": "asset-reference-guardian",
+        "filename": "reference-guardian.pdf",
+        "importSource": "local-pdf",
+        "category": "reference-card",
+        "localPath": "imports/maladum-cards/reference-guardian.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/reference-guardian.jpg",
+        "title": "Guardian",
+        "normalizedCardId": "reference-guardian",
+        "notes": "Profession reference card."
+      },
+      {
+        "id": "asset-reference-rogue",
+        "filename": "reference-rogue.pdf",
+        "importSource": "local-pdf",
+        "category": "reference-card",
+        "localPath": "imports/maladum-cards/reference-rogue.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/reference-rogue.jpg",
+        "title": "Rogue",
+        "normalizedCardId": "reference-rogue",
+        "notes": "Profession reference card."
+      },
+      {
+        "id": "asset-character-unger-q73",
+        "filename": "character-unger-q73.pdf",
+        "importSource": "local-pdf",
+        "category": "character-card",
+        "localPath": "imports/maladum-cards/character-unger-q73.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/character-unger-q73.jpg",
+        "title": "Unger",
+        "cardCode": "Q73",
+        "normalizedCardId": "character-unger",
+        "notes": "Character card. Species and badge visible."
+      },
+      {
+        "id": "asset-character-syrio-q64",
+        "filename": "character-syrio-q64.pdf",
+        "importSource": "local-pdf",
+        "category": "character-card",
+        "localPath": "imports/maladum-cards/character-syrio-q64.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/character-syrio-q64.jpg",
+        "title": "Syrio",
+        "cardCode": "Q64",
+        "normalizedCardId": "character-syrio",
+        "notes": "Character card. Species and badge visible."
+      },
+      {
+        "id": "asset-character-artain-q61",
+        "filename": "character-artain-q61.pdf",
+        "importSource": "local-pdf",
+        "category": "character-card",
+        "localPath": "imports/maladum-cards/character-artain-q61.pdf",
+        "previewImagePath": "imports/maladum-cards/_previews/character-artain-q61.jpg",
+        "title": "Artain",
+        "cardCode": "Q61",
+        "normalizedCardId": "character-artain",
+        "notes": "Character card. Species and badge visible."
+      }
+    ],
+    "characterCards": [
+      {
+        "id": "character-unger",
+        "name": "Unger",
+        "cardCode": "Q73",
+        "species": "Tregar",
+        "startingBadge": {
+          "id": "persuasion",
+          "name": "Persuasion",
+          "type": "ability",
+          "level": null
+        },
+        "trackTemplate": {
+          "health": {
+            "baseValue": 3,
+            "maxValue": 5,
+            "upgradeSlots": 2
+          },
+          "skill": {
+            "baseValue": 2,
+            "maxValue": 5,
+            "upgradeSlots": 3
+          },
+          "magic": {
+            "baseValue": 2,
+            "maxValue": 4,
+            "upgradeSlots": 2
+          },
+          "actions": {
+            "baseValue": 2,
+            "maxValue": 3,
+            "upgradeSlots": 1
+          },
+          "xpRowCapacities": [
+            5,
+            5,
+            4,
+            4
+          ]
+        },
+        "effectSlots": 1,
+        "sourceAssetIds": [
+          "asset-character-unger-q73"
+        ],
+        "notes": "XP rows were counted directly from the scanned card face. Current marked progress is captured in schema-seed.json for Unger."
+      },
+      {
+        "id": "character-syrio",
+        "name": "Syrio",
+        "cardCode": "Q64",
+        "species": "Eid",
+        "startingBadge": {
+          "id": "reflexes",
+          "name": "Reflexes",
+          "type": "skill",
+          "level": 1
+        },
+        "trackTemplate": {
+          "health": {
+            "baseValue": 4,
+            "maxValue": 6,
+            "upgradeSlots": 2
+          },
+          "skill": {
+            "baseValue": 1,
+            "maxValue": 4,
+            "upgradeSlots": 3
+          },
+          "magic": {
+            "baseValue": 1,
+            "maxValue": 4,
+            "upgradeSlots": 3
+          },
+          "actions": {
+            "baseValue": 2,
+            "maxValue": 2,
+            "upgradeSlots": 0
+          },
+          "xpRowCapacities": [
+            5,
+            4,
+            4,
+            3
+          ]
+        },
+        "effectSlots": 1,
+        "sourceAssetIds": [
+          "asset-character-syrio-q64"
+        ],
+        "notes": "XP rows were counted directly from the scanned card face. Current marked progress is captured in schema-seed.json for Syrio."
+      },
+      {
+        "id": "character-artain",
+        "name": "Artain",
+        "cardCode": "Q61",
+        "species": "Human",
+        "startingBadge": {
+          "id": "entertainer",
+          "name": "Entertainer",
+          "type": "ability",
+          "level": null
+        },
+        "trackTemplate": {
+          "health": {
+            "baseValue": 3,
+            "maxValue": 5,
+            "upgradeSlots": 2
+          },
+          "skill": {
+            "baseValue": 2,
+            "maxValue": 4,
+            "upgradeSlots": 2
+          },
+          "magic": {
+            "baseValue": 2,
+            "maxValue": 5,
+            "upgradeSlots": 3
+          },
+          "actions": {
+            "baseValue": 2,
+            "maxValue": 2,
+            "upgradeSlots": 0
+          },
+          "xpRowCapacities": [
+            4,
+            4,
+            3,
+            3
+          ]
+        },
+        "effectSlots": 1,
+        "sourceAssetIds": [
+          "asset-character-artain-q61"
+        ],
+        "notes": "XP rows were counted directly from the scanned card face. Current marked progress is captured in schema-seed.json for Artain."
+      }
+    ],
+    "referenceCards": [
+      {
+        "id": "reference-marksman",
+        "name": "Marksman",
+        "kind": "profession",
+        "sourceAssetIds": [
+          "asset-reference-marksman"
+        ],
+        "abilities": [
+          {
+            "id": "hawkeye",
+            "name": "Hawkeye",
+            "entries": [
+              {
+                "mode": "passive",
+                "text": "Ranged attacks ignore cover. May fire at engaged characters without randomising target."
+              }
+            ]
+          },
+          {
+            "id": "ambush",
+            "name": "Ambush",
+            "entries": []
+          },
+          {
+            "id": "bullseye",
+            "name": "Bullseye",
+            "entries": []
+          },
+          {
+            "id": "countershot",
+            "name": "Countershot",
+            "entries": []
+          }
+        ]
+      },
+      {
+        "id": "spell-primorist",
+        "name": "Primorist",
+        "kind": "spell-card",
+        "sourceAssetIds": [
+          "asset-spell-primorist"
+        ],
+        "abilities": [
+          {
+            "id": "focused-energy",
+            "name": "Focused Energy",
+            "entries": []
+          },
+          {
+            "id": "open-door",
+            "name": "Open Door",
+            "entries": []
+          },
+          {
+            "id": "telekinesis",
+            "name": "Telekinesis",
+            "entries": []
+          },
+          {
+            "id": "extinguish",
+            "name": "Extinguish",
+            "entries": []
+          },
+          {
+            "id": "detect",
+            "name": "Detect",
+            "entries": []
+          },
+          {
+            "id": "protect",
+            "name": "Protect",
+            "entries": []
+          },
+          {
+            "id": "invisibility",
+            "name": "Invisibility",
+            "entries": []
+          },
+          {
+            "id": "advanced-telekinesis",
+            "name": "Advanced Telekinesis",
+            "entries": []
+          }
+        ]
+      },
+      {
+        "id": "reference-magus",
+        "name": "Magus",
+        "kind": "profession",
+        "sourceAssetIds": [
+          "asset-reference-magus"
+        ],
+        "abilities": [
+          {
+            "id": "fortified-mind",
+            "name": "Fortified Mind",
+            "entries": []
+          },
+          {
+            "id": "frenzy",
+            "name": "Frenzy",
+            "entries": []
+          },
+          {
+            "id": "intimidating",
+            "name": "Intimidating",
+            "entries": []
+          }
+        ]
+      },
+      {
+        "id": "reference-guardian",
+        "name": "Guardian",
+        "kind": "profession",
+        "sourceAssetIds": [
+          "asset-reference-guardian"
+        ],
+        "abilities": [
+          {
+            "id": "starting-health-bonus",
+            "name": "Increase Starting Health by 1",
+            "entries": [
+              {
+                "mode": "passive",
+                "text": "Increase starting Health by 1."
+              }
+            ]
+          },
+          {
+            "id": "brutal-assault",
+            "name": "Brutal Assault",
+            "entries": []
+          },
+          {
+            "id": "frenzy",
+            "name": "Frenzy",
+            "entries": []
+          },
+          {
+            "id": "impervious",
+            "name": "Impervious",
+            "entries": []
+          },
+          {
+            "id": "onslaught",
+            "name": "Onslaught",
+            "entries": []
+          }
+        ]
+      },
+      {
+        "id": "reference-rogue",
+        "name": "Rogue",
+        "kind": "profession",
+        "sourceAssetIds": [
+          "asset-reference-rogue"
+        ],
+        "abilities": [
+          {
+            "id": "camouflage",
+            "name": "Camouflage",
+            "entries": []
+          },
+          {
+            "id": "distraction",
+            "name": "Distraction",
+            "entries": []
+          },
+          {
+            "id": "duck-for-cover",
+            "name": "Duck for Cover",
+            "entries": []
+          },
+          {
+            "id": "light-fingers",
+            "name": "Light Fingers",
+            "entries": []
+          }
+        ]
+      }
+    ],
+    "notes": "This catalog separates raw scan assets from normalized card definitions. Character cards now include counted XP row capacities from the March 29, 2026 scans. Campaign-specific live progress remains in schema-seed.json."
+  }
+}

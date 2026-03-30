@@ -1,0 +1,326 @@
+{
+  "extractedAt": "2026-03-30",
+  "purpose": "Structured extraction of profession-board skills, pip capacities, and printed pip values.",
+  "sources": [
+    {
+      "kind": "private-archive-image",
+      "description": "Supplementary profession board sheet A from the user's private archive."
+    },
+    {
+      "kind": "private-archive-image",
+      "description": "Supplementary profession board sheet B from the user's private archive."
+    },
+    {
+      "kind": "repo-preview",
+      "path": "imports/maladum-cards/_previews/reference-marksman.jpg"
+    },
+    {
+      "kind": "repo-preview",
+      "path": "imports/maladum-cards/_previews/reference-guardian.jpg"
+    },
+    {
+      "kind": "repo-preview",
+      "path": "imports/maladum-cards/_previews/reference-magus.jpg"
+    },
+    {
+      "kind": "repo-preview",
+      "path": "imports/maladum-cards/_previews/reference-rogue.jpg"
+    }
+  ],
+  "notes": [
+    "Pip capacity is derived from the number of numbered ranks printed for a skill.",
+    "Starting profession traits are recorded separately and are not counted as pip-tracked skills.",
+    "A few icon-based modifiers were normalized into plain language where the icon meaning was visually clear."
+  ],
+  "professionBoards": [
+    {
+      "profession": "Marksman",
+      "startingTrait": {
+        "name": "Hawkeye",
+        "text": "Ranged attacks ignore cover. May fire at engaged characters without randomising target."
+      },
+      "skills": [
+        {
+          "name": "Ambush",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Reaction: Use when enemy ends Move within 4 squares and you are in cover. Make a Ranged Attack against them. You may Dash before or after."
+            },
+            {
+              "pip": 2,
+              "text": "Reaction: Use when enemy ends Move within 4 squares and you are in cover. Make a Move and then an Attack against them. You may Dash once before or after either action."
+            },
+            {
+              "pip": 3,
+              "text": "Reaction: Use when enemy ends Move within 4 squares and you are in cover. Make a Move, an Attack, and a Move. You may Dash once before or after any of these actions."
+            }
+          ]
+        },
+        {
+          "name": "Bullseye",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Make short-range Ranged Attack. Do not roll. Scores 1 hit, ignoring cover."
+            },
+            {
+              "pip": 2,
+              "text": "Make medium-range Ranged Attack. Do not roll. Scores 1 hit, ignoring cover and physical armour."
+            },
+            {
+              "pip": 3,
+              "text": "Make medium-range Ranged Attack. Do not roll. Scores 2 hits, ignoring cover and physical armour."
+            }
+          ]
+        },
+        {
+          "name": "Countershot",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Reaction: Use when targeted with ranged attack/spell, before resolving. Make Ranged Attack/cast spell against attacker."
+            },
+            {
+              "pip": 2,
+              "text": "Reaction: Use at any time after target enemy takes first action each round. Make Ranged Attack/cast spell against target."
+            },
+            {
+              "pip": 3,
+              "text": "Reaction: Use any time. Make Ranged Attack/cast spell against enemy with +1 die, then Move."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "profession": "Guardian",
+      "startingTrait": {
+        "name": "Guardian Bonus",
+        "text": "Increase starting Health by 1."
+      },
+      "skills": [
+        {
+          "name": "Brutal Assault",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Make a Melee Attack with +1 die. Lay target prone."
+            },
+            {
+              "pip": 2,
+              "text": "Choose character engaged with you up to your size. Move them to any square in short range and LoS with no AoO. They suffer attack with +1 die, adding 1 die if they hit a wall or terrain piece. Lay them prone. If they hit a character, it suffers the same attack. Passive: Ignore Cumbersome for melee weapons."
+            },
+            {
+              "pip": 3,
+              "text": "Make up to three Melee Attacks with +1 die. Lay target prone. Then Move."
+            }
+          ]
+        },
+        {
+          "name": "Frenzy",
+          "totalAvailablePips": 2,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Use before melee attack to roll +2 dice."
+            },
+            {
+              "pip": 2,
+              "text": "Use before melee attack to roll +3 dice."
+            }
+          ]
+        },
+        {
+          "name": "Impervious",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Reaction: Use when you would suffer a status counter. Discard it."
+            },
+            {
+              "pip": 2,
+              "text": "Gain +2 armour until end of round."
+            },
+            {
+              "pip": 3,
+              "text": "Restore 1 Health (even above starting level). Discard any status counters. You may ignore all damage, resist all spells, and discard all status counters suffered until end of round."
+            }
+          ]
+        },
+        {
+          "name": "Onslaught",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Reaction: Use after scoring hits in melee. Make a Melee Attack."
+            },
+            {
+              "pip": 2,
+              "text": "Reaction: Use after scoring hits with an attack. You may Move and then make a Melee Attack."
+            },
+            {
+              "pip": 3,
+              "text": "Use during a Move. Ignore AoO. You may make a Melee Attack against each enemy engaged while moving."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "profession": "Magus",
+      "startingTrait": {
+        "name": "Magical Knowledge",
+        "text": "Magi have magical knowledge - take the matching Maladaar Reference Card and mark spells as they are learned."
+      },
+      "skills": [
+        {
+          "name": "Fortified Mind",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Use before casting a spell to cast it while engaged."
+            },
+            {
+              "pip": 2,
+              "text": "Reaction: Use when friend in short range suffers an attack. Use this character's magical armour. Pegs from this character and/or target may be used. Magic Die effects are applied to this character."
+            },
+            {
+              "pip": 3,
+              "text": "Until end of round, all spells targeting friends in short range are resisted for free (unless they are Unstoppable). Attacks against friends in short range may use this character's magical armour. Pegs from this character and/or target may be used. Magic Die effects are applied to this character. Passive: When casting spells of level lower than rank, do not become Fatigued after Mental Overload result."
+            }
+          ]
+        },
+        {
+          "name": "Frenzy",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Use before melee attack to roll +2 dice."
+            },
+            {
+              "pip": 2,
+              "text": "Use before melee attack to roll +3 dice."
+            },
+            {
+              "pip": 3,
+              "text": "Use before melee attack to roll +4 dice. Hits may be split between targets in range of weapon. Additional effects are applied to all enemies hit. Passive: Gain First Strike."
+            }
+          ]
+        },
+        {
+          "name": "Intimidating",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Reaction: Use when enemy in LoS activates. Choose their target."
+            },
+            {
+              "pip": 2,
+              "text": "Reaction: Use when enemy enters LoS or starts turn in LoS. Their turn ends and they are Stunned. Passive: As an effortless action, take an action with friend in short range. Then become Fatigued."
+            },
+            {
+              "pip": 3,
+              "text": "All enemies up to this character's rank within short range and LoS are Stunned and Terrified. Passive: Gain Terrifying."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "profession": "Rogue",
+      "startingTrait": null,
+      "skills": [
+        {
+          "name": "Camouflage",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "While in contact with a wall you cannot be targeted until end of round. Enemies can move through adjacent squares without stopping or suffering AoO but cannot end a Move in contact with you. You do not block LoS."
+            },
+            {
+              "pip": 2,
+              "text": "Make a Move or Ranged Attack. Then, while in contact with any terrain you cannot be targeted until end of round, as above."
+            },
+            {
+              "pip": 3,
+              "text": "While not in contact with an enemy you cannot be targeted until end of round, as above. Passive Reaction: At any time while this skill is active (including midway through an enemy Move) make a Ranged Attack and become Fatigued."
+            }
+          ]
+        },
+        {
+          "name": "Distraction",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "A character in medium range and LoS is Fatigued."
+            },
+            {
+              "pip": 2,
+              "text": "Make a Ranged Attack/Throw. Target or other enemy in short range of target suffers 2 Fatigue in addition to other effects. Then Move."
+            },
+            {
+              "pip": 3,
+              "text": "Choose character in medium range and LoS. Move them (may not engage or cause harm). They suffer 2 Fatigue. In any order, before or after moving target, you may Move and Attack."
+            }
+          ]
+        },
+        {
+          "name": "Duck for Cover",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Reaction: Use when targeted with ranged attack or spell when within 4 squares of cover. Move into cover."
+            },
+            {
+              "pip": 2,
+              "text": "Reaction: Use when targeted with ranged attack or spell when within 4 squares of cover. Move into cover and ignore effects of attack."
+            },
+            {
+              "pip": 3,
+              "text": "Reaction: Use any time. In any order, Move into cover ignoring AoO and Attack. You cannot be targeted until end of round while still."
+            }
+          ]
+        },
+        {
+          "name": "Light Fingers",
+          "totalAvailablePips": 3,
+          "pipValues": [
+            {
+              "pip": 1,
+              "text": "Reaction: Use after suffering zero-damage melee attack. Take item from attacker (not attacking weapon), dropping an item if no space."
+            },
+            {
+              "pip": 2,
+              "text": "Move into contact and Pickpocket. Then Move with no AoO."
+            },
+            {
+              "pip": 3,
+              "text": "Passive: You may Pickpocket as standard."
+            }
+          ],
+          "additionalRules": [
+            "Pickpocket: When in contact with character, roll combat die.",
+            "Skull: No effect.",
+            "Blank: Scatter random item.",
+            "Single success icon: Take non-large item.",
+            "Double success icon: Take item of choice. Target is prone.",
+            "Target may spend Skill peg to cancel effect."
+          ]
+        }
+      ]
+    }
+  ]
+}

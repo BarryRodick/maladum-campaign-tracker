@@ -1,0 +1,1302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/campaign-tracker.schema.json",
+  "title": "Maladum Campaign Tracker",
+  "description": "Neutral schema for tracking Maladum campaign and character progression. Supports manual entry and optional import of official Character Editor exports.",
+  "type": "object",
+  "required": [
+    "version",
+    "campaign",
+    "party",
+    "adventurers",
+    "items",
+    "questLog"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "campaign": {
+      "$ref": "#/$defs/campaign"
+    },
+    "party": {
+      "$ref": "#/$defs/party"
+    },
+    "adventurers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/adventurer"
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    },
+    "questLog": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/questRecord"
+      }
+    },
+    "referenceLibrary": {
+      "$ref": "#/$defs/referenceLibrary"
+    },
+    "cardCatalog": {
+      "$ref": "#/$defs/cardCatalog"
+    },
+    "imports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/importRecord"
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "campaign": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "ruleset",
+        "currentQuestId",
+        "delay",
+        "renown",
+        "stash"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ruleset": {
+          "type": "string",
+          "enum": [
+            "dungeons-of-enveron",
+            "second-sun",
+            "shields-of-the-frontier",
+            "custom"
+          ]
+        },
+        "currentQuestId": {
+          "type": "string"
+        },
+        "nextQuestOptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "delay": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "renown": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stash": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "secureStorageEnabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        },
+        "achievements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackerMark"
+          },
+          "default": []
+        },
+        "rewards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackerMark"
+          },
+          "default": []
+        },
+        "bonusTrackers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackerMark"
+          },
+          "default": []
+        }
+      }
+    },
+    "party": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "memberIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "memberIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reserveIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "storageItemIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    },
+    "adventurer": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "status",
+        "profile",
+        "campaignState",
+        "trackerState"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "reserve",
+            "temporary",
+            "missing-next-quest",
+            "missing-two-quests",
+            "dead",
+            "left-party"
+          ]
+        },
+        "profile": {
+          "$ref": "#/$defs/adventurerProfile"
+        },
+        "campaignState": {
+          "$ref": "#/$defs/adventurerCampaignState"
+        },
+        "trackerState": {
+          "$ref": "#/$defs/trackerState"
+        }
+      }
+    },
+    "adventurerProfile": {
+      "type": "object",
+      "required": [
+        "species",
+        "profession",
+        "baseHealth",
+        "baseSkill",
+        "baseMagic",
+        "baseActions",
+        "xpRank1",
+        "xpPotentialByRank",
+        "abilitySlots"
+      ],
+      "properties": {
+        "species": {
+          "type": "string"
+        },
+        "profession": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "baseHealth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "baseSkill": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "baseMagic": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "baseActions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "xpRank1": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "default": null
+        },
+        "xpPotentialByRank": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 1
+            }
+          ],
+          "default": null
+        },
+        "abilitySlots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/abilitySlot"
+          }
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "imageFactor": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        },
+        "imageTranslateX": {
+          "type": "number",
+          "default": 0
+        },
+        "imageTranslateY": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "adventurerCampaignState": {
+      "type": "object",
+      "required": [
+        "rank",
+        "xpMarksByRow",
+        "statIncreases",
+        "learnedSkills",
+        "learnedSpells",
+        "inventoryItemIds",
+        "armourItemIds",
+        "missedQuestCount"
+      ],
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "xpMarksByRow": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "minItems": 1
+        },
+        "statIncreases": {
+          "type": "object",
+          "required": [
+            "health",
+            "skill",
+            "magic",
+            "actions"
+          ],
+          "properties": {
+            "health": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "skill": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "magic": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "actions": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "learnedSkills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rankedAbility"
+          },
+          "default": []
+        },
+        "learnedSpells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rankedAbility"
+          },
+          "default": []
+        },
+        "inventoryItemIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "armourItemIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "brokenItemIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "missedQuestCount": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "participatedLastQuest": {
+          "type": "boolean",
+          "default": false
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "trackerState": {
+      "type": "object",
+      "required": [
+        "currentHealth",
+        "currentSkill",
+        "currentMagic",
+        "currentActions"
+      ],
+      "properties": {
+        "currentHealth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currentSkill": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currentMagic": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currentActions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "statusEffects": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "fatigued",
+              "wounded",
+              "poisoned",
+              "burning",
+              "terrified",
+              "stunned",
+              "warded",
+              "blessed",
+              "fate",
+              "prone",
+              "defeated"
+            ]
+          },
+          "default": []
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "abilitySlot": {
+      "type": "object",
+      "required": [
+        "onArmour",
+        "ability"
+      ],
+      "properties": {
+        "onArmour": {
+          "type": "boolean"
+        },
+        "ability": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/rankedAbility"
+            }
+          ]
+        }
+      }
+    },
+    "rankedAbility": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "skill",
+            "spell",
+            "ability"
+          ]
+        },
+        "level": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "default": null
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "rarity",
+        "location"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "rarity": {
+          "type": "string",
+          "enum": [
+            "common",
+            "uncommon",
+            "rare",
+            "exclusive",
+            "unknown"
+          ]
+        },
+        "location": {
+          "type": "string",
+          "enum": [
+            "inventory",
+            "armour",
+            "storage",
+            "lost",
+            "sold",
+            "discarded"
+          ]
+        },
+        "ownerAdventurerId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "buyCost": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "default": null
+        },
+        "sellCost": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "default": null
+        },
+        "broken": {
+          "type": "boolean",
+          "default": false
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "questRecord": {
+      "type": "object",
+      "required": [
+        "id",
+        "questId",
+        "title",
+        "primaryCompleted",
+        "secondarySummary",
+        "renownDelta",
+        "stashDelta",
+        "delayDelta"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "questId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "playedOn": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date",
+          "default": null
+        },
+        "primaryCompleted": {
+          "type": "boolean"
+        },
+        "secondarySummary": {
+          "type": "string"
+        },
+        "objectiveNotes": {
+          "type": "string",
+          "default": ""
+        },
+        "renownDelta": {
+          "type": "integer"
+        },
+        "stashDelta": {
+          "type": "integer"
+        },
+        "delayDelta": {
+          "type": "integer"
+        },
+        "achievementChanges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackerMark"
+          },
+          "default": []
+        },
+        "rewardChanges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackerMark"
+          },
+          "default": []
+        },
+        "rescueOutcomeByAdventurerId": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "escaped",
+              "rescued",
+              "left-for-dead",
+              "dead",
+              "lost-equipment",
+              "miss-next-quest",
+              "miss-two-quests"
+            ]
+          },
+          "default": {}
+        },
+        "nextQuestOptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "chosenNextQuestId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    },
+    "trackerMark": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "referenceLibrary": {
+      "type": "object",
+      "properties": {
+        "skills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceEntry"
+          },
+          "default": []
+        },
+        "spells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceEntry"
+          },
+          "default": []
+        },
+        "abilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceEntry"
+          },
+          "default": []
+        }
+      }
+    },
+    "cardCatalog": {
+      "type": "object",
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cardAsset"
+          },
+          "default": []
+        },
+        "characterCards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/characterCardTemplate"
+          },
+          "default": []
+        },
+        "referenceCards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceCardTemplate"
+          },
+          "default": []
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "default": {
+        "assets": [],
+        "characterCards": [],
+        "referenceCards": [],
+        "notes": ""
+      }
+    },
+    "cardAsset": {
+      "type": "object",
+      "required": [
+        "id",
+        "filename",
+        "category",
+        "importSource"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "importSource": {
+          "type": "string",
+          "enum": [
+            "google-drive-pdf",
+            "local-pdf",
+            "local-image",
+            "manual"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "character-card",
+            "reference-card",
+            "uncategorized"
+          ]
+        },
+        "localPath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "sourceUrl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "mimeType": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "importedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "default": null
+        },
+        "previewImagePath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "cardCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "normalizedCardId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "characterCardTemplate": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "cardCode",
+        "sourceAssetIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "cardCode": {
+          "type": "string"
+        },
+        "species": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "profession": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "startingBadge": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/rankedAbility"
+            }
+          ],
+          "default": null
+        },
+        "trackTemplate": {
+          "$ref": "#/$defs/characterTrackTemplate"
+        },
+        "effectSlots": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "sourceAssetIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "characterTrackTemplate": {
+      "type": "object",
+      "properties": {
+        "health": {
+          "$ref": "#/$defs/trackValueTemplate"
+        },
+        "skill": {
+          "$ref": "#/$defs/trackValueTemplate"
+        },
+        "magic": {
+          "$ref": "#/$defs/trackValueTemplate"
+        },
+        "actions": {
+          "$ref": "#/$defs/trackValueTemplate"
+        },
+        "xpRowCapacities": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          ],
+          "default": null
+        }
+      },
+      "default": {}
+    },
+    "trackValueTemplate": {
+      "type": "object",
+      "properties": {
+        "baseValue": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "default": null
+        },
+        "maxValue": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "default": null
+        },
+        "upgradeSlots": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "default": null
+        }
+      },
+      "default": {}
+    },
+    "referenceCardTemplate": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "sourceAssetIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "profession",
+            "spell-card",
+            "reference",
+            "other"
+          ]
+        },
+        "cardCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "introText": {
+          "type": "string",
+          "default": ""
+        },
+        "abilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceCardAbility"
+          },
+          "default": []
+        },
+        "sourceAssetIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "referenceCardAbility": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "entries"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceCardAbilityEntry"
+          }
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "referenceCardAbilityEntry": {
+      "type": "object",
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "rank": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "default": null
+        },
+        "mode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "active",
+            "reaction",
+            "passive",
+            "campaign",
+            "rule",
+            null
+          ],
+          "default": null
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "referenceEntry": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "type",
+        "rulesText"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "skill",
+            "spell",
+            "ability"
+          ]
+        },
+        "level": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "default": null
+        },
+        "mode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "passive",
+            "reaction",
+            "active",
+            null
+          ],
+          "default": null
+        },
+        "rulesText": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "page": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "default": null
+            }
+          },
+          "default": {}
+        }
+      }
+    },
+    "importRecord": {
+      "type": "object",
+      "required": [
+        "source",
+        "importedAt",
+        "payload"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "official-character-editor",
+            "manual"
+          ]
+        },
+        "importedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payload": {
+          "description": "For official Character Editor imports, this mirrors the inferred save-file structure from the public bundle.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/officialCharacterImport"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        }
+      }
+    },
+    "officialCharacterImport": {
+      "type": "object",
+      "required": [
+        "version",
+        "content"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": [
+            "1.0",
+            "1.1"
+          ]
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "species": {
+              "type": "object"
+            },
+            "health": {
+              "type": "integer"
+            },
+            "skill": {
+              "type": "integer"
+            },
+            "magic": {
+              "type": "integer"
+            },
+            "actions": {
+              "type": "integer"
+            },
+            "xp_rank1": {
+              "type": "integer"
+            },
+            "available_xp": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "health_increase": {
+              "type": "integer"
+            },
+            "skill_increase": {
+              "type": "integer"
+            },
+            "magic_increase": {
+              "type": "integer"
+            },
+            "actions_increase": {
+              "type": "integer"
+            },
+            "abilityslots": {
+              "type": "array"
+            },
+            "image": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "image_factor": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "image_translate_x": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "image_translate_y": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

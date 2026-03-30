@@ -1,0 +1,284 @@
+{
+  "extractedAt": "2026-03-30",
+  "purpose": "Combined overview extraction of profession boards visible across the uploaded board sheet image, two supplementary private archive board sheets, and official rulebook metadata. This corrects the profession coverage gap in the earlier standalone rules-card extract.",
+  "sources": [
+    {
+      "kind": "user-image",
+      "description": "Profession board sheet image shared in chat on March 30, 2026."
+    },
+    {
+      "kind": "private-archive-image",
+      "description": "Supplementary profession board sheet A from the user's private archive."
+    },
+    {
+      "kind": "private-archive-image",
+      "description": "Supplementary profession board sheet B from the user's private archive."
+    },
+    {
+      "kind": "official-rulebook",
+      "officialUrl": "https://links.battlesystems.co.uk/49wulPz",
+      "notes": "Used to confirm many embedded skill names and pip counts."
+    }
+  ],
+  "notes": [
+    "This file models the profession board sheets, not the standalone detailed rules cards.",
+    "Where a skill name or pip count is confirmed from the rulebook metadata, sourceConfidence is set to confirmed.",
+    "Where a skill was read only from the overview image, sourceConfidence is set to image-only or inferred.",
+    "Ready for Anything is a 2-pip skill in the rulebook metadata; most other board skills shown here are 3-pip skills.",
+    "The detailed skill mapping below is still strongest for the original 10-board sheet. The supplementary board sheet inventory widens profession coverage even where full skill extraction is not yet complete.",
+    "The profession spelling Prymorist/Primorist remains inconsistent across sources and needs one final canonical decision."
+  ],
+  "summary": {
+    "uniqueProfessions": [
+      "Paladin",
+      "Curator",
+      "Eudemon",
+      "Warden",
+      "Prymorist",
+      "Deceiver",
+      "Ranger",
+      "Assassin",
+      "Rogue",
+      "Rook",
+      "Druid",
+      "Sellsword",
+      "Strategist",
+      "Swindler",
+      "Magus",
+      "Scavenger",
+      "Barbarian",
+      "Contender",
+      "Blacksmith",
+      "Maestro",
+      "Guardian",
+      "Marksman"
+    ],
+    "duplicateBoardsOnSheet": [
+      "Rogue",
+      "Sellsword",
+      "Strategist",
+      "Ranger",
+      "Rook",
+      "Druid",
+      "Swindler",
+      "Magus",
+      "Scavenger",
+      "Barbarian",
+      "Blacksmith",
+      "Eudemon",
+      "Maestro",
+      "Prymorist"
+    ],
+    "totalUniqueProfessions": 22
+  },
+  "sheetInventories": [
+    {
+      "source": "user-image",
+      "professions": [
+        "Ranger",
+        "Assassin",
+        "Rogue",
+        "Rook",
+        "Druid",
+        "Sellsword",
+        "Strategist",
+        "Swindler",
+        "Magus",
+        "Scavenger"
+      ]
+    },
+    {
+      "source": "supplementary-sheet-a",
+      "professions": [
+        "Ranger",
+        "Assassin",
+        "Rook",
+        "Druid",
+        "Rogue",
+        "Sellsword",
+        "Strategist",
+        "Swindler",
+        "Magus",
+        "Scavenger",
+        "Blacksmith",
+        "Maestro",
+        "Guardian",
+        "Marksman"
+      ]
+    },
+    {
+      "source": "supplementary-sheet-b",
+      "professions": [
+        "Paladin",
+        "Curator",
+        "Rook",
+        "Sellsword",
+        "Eudemon",
+        "Barbarian",
+        "Warden",
+        "Contender",
+        "Prymorist",
+        "Scavenger",
+        "Deceiver",
+        "Swindler",
+        "Druid",
+        "Maestro",
+        "Blacksmith",
+        "Ranger"
+      ]
+    }
+  ],
+  "professionBoards": [
+    {
+      "profession": "Ranger",
+      "boardCode": "G9",
+      "skills": [
+        { "name": "Ambush", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Camouflage", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Tracking", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Ranged Expert", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Quick Recovery", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Reflexes", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "One with Nature", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Ready for Anything", "totalAvailablePips": 2, "sourceConfidence": "confirmed" }
+      ]
+    },
+    {
+      "profession": "Assassin",
+      "boardCode": "G13",
+      "skills": [
+        { "name": "Reflexes", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Combat Arts", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Acrobatics", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Hard to Hit", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Disarm", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Trick Shot", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Quick Recovery", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Malacyte Mastery", "totalAvailablePips": null, "sourceConfidence": "inferred", "notes": "Right-most blue skill on the sheet is not fully legible; Malacyte Mastery is the best match from the embedded skill-name inventory." }
+      ]
+    },
+    {
+      "profession": "Rogue",
+      "boardCode": "G5",
+      "skills": [
+        { "name": "Light Fingers", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Reflexes", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Tricks of the Trade", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Distraction", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Persuasion", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Camouflage", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Tracking", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Duck for Cover", "totalAvailablePips": 3, "sourceConfidence": "confirmed" }
+      ]
+    },
+    {
+      "profession": "Rook",
+      "boardCode": "G16",
+      "skills": [
+        { "name": "Power Manipulation", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Malacyte Mastery", "totalAvailablePips": null, "sourceConfidence": "image-only", "notes": "Readable as a mastery skill on the blue circular token but not text-perfect in the overview image." },
+        { "name": "Distraction", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Persuasion", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Barter", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Duck for Cover", "totalAvailablePips": 3, "sourceConfidence": "confirmed" }
+      ],
+      "specials": [
+        "Spell booklet visible on board image."
+      ]
+    },
+    {
+      "profession": "Druid",
+      "boardCode": "G13",
+      "skills": [
+        { "name": "Tracking", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Distraction", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Reflexes", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "One with Nature", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Fortified Mind", "totalAvailablePips": 3, "sourceConfidence": "image-only", "notes": "Blue defensive skill on the sheet reads closest to Fortified Mind." },
+        { "name": "Ambush", "totalAvailablePips": 3, "sourceConfidence": "confirmed" }
+      ],
+      "specials": [
+        "Spell booklet visible on board image.",
+        "Open Door icon visible on board image."
+      ]
+    },
+    {
+      "profession": "Sellsword",
+      "boardCode": "G10",
+      "skills": [
+        { "name": "Reflexes", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Frenzy", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Weapons Master", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Counter Shot", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Training", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Bullseye", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Quick Recovery", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Ambush", "totalAvailablePips": 3, "sourceConfidence": "confirmed" }
+      ]
+    },
+    {
+      "profession": "Strategist",
+      "boardCode": "G20",
+      "skills": [
+        { "name": "Tactical Shot", "totalAvailablePips": null, "sourceConfidence": "image-only" },
+        { "name": "Bombast", "totalAvailablePips": null, "sourceConfidence": "image-only" },
+        { "name": "Training", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Ready for Anything", "totalAvailablePips": 2, "sourceConfidence": "confirmed", "notes": "Green figure skill on the sheet is treated as Ready for Anything because that is the confirmed 2-pip support skill in the embedded metadata." },
+        { "name": "Ranged Expert", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Counter Shot", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Distraction", "totalAvailablePips": 3, "sourceConfidence": "confirmed" }
+      ],
+      "specials": [
+        "Foresight icon visible on board image.",
+        "Remote Resistance icon visible on board image."
+      ]
+    },
+    {
+      "profession": "Swindler",
+      "boardCode": "G11",
+      "skills": [
+        { "name": "Combat Arts", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Disarm", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Light Fingers", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Distraction", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Reflexes", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Bullseye", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Trick Shot", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Entertainer", "totalAvailablePips": null, "sourceConfidence": "image-only" }
+      ],
+      "specials": [
+        "Illusion icon visible on board image."
+      ]
+    },
+    {
+      "profession": "Magus",
+      "boardCode": "G14",
+      "skills": [
+        { "name": "Quick Recovery", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Power Manipulation", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Reflexes", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Intimidating", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Fortified Mind", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Ready for Anything", "totalAvailablePips": 2, "sourceConfidence": "confirmed" },
+        { "name": "Frenzy", "totalAvailablePips": 3, "sourceConfidence": "confirmed" }
+      ],
+      "specials": [
+        "Spell booklet visible on board image."
+      ]
+    },
+    {
+      "profession": "Scavenger",
+      "boardCode": "G9",
+      "skills": [
+        { "name": "Acrobatics", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Fleet of Foot", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Combat Arts", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Tricks of the Trade", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Light Fingers", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Hard to Hit", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Barter", "totalAvailablePips": 3, "sourceConfidence": "confirmed" },
+        { "name": "Ready for Anything", "totalAvailablePips": 2, "sourceConfidence": "confirmed" }
+      ]
+    }
+  ]
+}

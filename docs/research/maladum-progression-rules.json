@@ -1,0 +1,130 @@
+{
+  "source": {
+    "title": "Maladum Dungeons of Enveron Rulebook",
+    "officialUrl": "https://links.battlesystems.co.uk/49wulPz",
+    "localWorkingCopyExcluded": true,
+    "extractedOn": "2026-03-30",
+    "pages": {
+      "party_setup": 54,
+      "advancement_phase": 62,
+      "level_up": 63,
+      "rest_phase": 66,
+      "training_skill": 81
+    }
+  },
+  "rank": {
+    "definition": "A character's rank is determined by the number of rows with at least one Experience space filled.",
+    "startingRankMostCharacters": 1
+  },
+  "experienceEarning": [
+    {
+      "rowsBeingFilled": [1, 2],
+      "award": 1,
+      "requirements": [
+        "survive the quest",
+        "escape during the game"
+      ],
+      "primaryObjectiveRequired": false
+    },
+    {
+      "rowsBeingFilled": [3, 4],
+      "award": 1,
+      "requirements": [
+        "survive the quest",
+        "party completed the primary objective"
+      ],
+      "primaryObjectiveRequired": true
+    },
+    {
+      "rowsBeingFilled": [5],
+      "award": 1,
+      "requirements": [
+        "special circumstances only"
+      ],
+      "primaryObjectiveRequired": "varies"
+    }
+  ],
+  "rank5SpecialCircumstances": [
+    "Personally completing a primary objective",
+    "Defeating four characters in a single round",
+    "Completing the primary objective and surviving while starting with no more than two party members",
+    "Single-handedly dragging a defeated Adventurer off the gaming area from at least medium range from the Staging Point"
+  ],
+  "allocation": {
+    "mustAllocateImmediately": true,
+    "canSaveForLaterRanks": false,
+    "allowedTargets": [
+      "Class board empty spaces",
+      "Character board empty spaces"
+    ]
+  },
+  "skills": {
+    "classBoardMaxLevelByRank": true,
+    "characterBoardRestrictedByRank": false,
+    "usableLevelEqualsMarkedSpaces": true
+  },
+  "spells": {
+    "learnByFillingSpellTrackSpace": true,
+    "mustMarkSpellOnReferenceCard": true,
+    "maxSpellLevelByCurrentRank": true
+  },
+  "rowCompletionRewards": [
+    {
+      "completedRow": 1,
+      "pickCount": 1,
+      "allowedStatistics": ["health", "magic", "skill"],
+      "inference": false
+    },
+    {
+      "completedRow": 2,
+      "pickCount": 1,
+      "allowedStatistics": ["health", "magic", "skill"],
+      "inference": false
+    },
+    {
+      "completedRow": 3,
+      "pickCount": 2,
+      "allowedStatistics": ["health", "magic", "skill"],
+      "inference": false
+    },
+    {
+      "completedRow": 4,
+      "pickCount": 2,
+      "allowedStatistics": ["health", "magic", "skill", "actions"],
+      "inference": true,
+      "note": "The rulebook says 'any two statistics'. Inclusion of Actions is inferred and should be verified."
+    },
+    {
+      "completedRow": 5,
+      "pickCount": 2,
+      "allowedStatistics": ["health", "magic", "skill", "actions"],
+      "inference": true,
+      "note": "The rulebook says 'any two statistics'. Inclusion of Actions is inferred and should be verified."
+    }
+  ],
+  "capsAndEdgeCases": {
+    "respectPrintedMaximumPotential": true,
+    "someCharactersHaveFewerThanFiveRanks": true,
+    "fullTrackFutureExperienceGoesToRemainingStats": true
+  },
+  "additionalExperienceSources": [
+    {
+      "source": "Training skill",
+      "phase": "Advancement",
+      "page": 81
+    },
+    {
+      "source": "Inn rest result",
+      "phase": "Rest",
+      "page": 66
+    }
+  ],
+  "appImplications": [
+    "Do not model progression as a flat xpTotal only.",
+    "Track which XP row is being filled.",
+    "Track immediate XP allocation to skills or spells.",
+    "Only unlock stat increases when a row becomes complete.",
+    "Enforce rank limits on class-board skills and spell levels.",
+    "Clamp stat increases to printed maximum potential."
+  ]
+}
