@@ -371,32 +371,17 @@ a {
 
 .progress-dock {
   position: absolute;
-  display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   gap: 0.42rem;
   padding: 0.5rem 0.55rem;
   border-radius: 16px;
   background:
-    linear-gradient(180deg, rgba(17, 10, 6, 0.68), rgba(17, 10, 6, 0.82));
+      linear-gradient(180deg, rgba(17, 10, 6, 0.68), rgba(17, 10, 6, 0.82));
   border: 1px solid rgba(255, 235, 202, 0.08);
   box-shadow: inset 0 0 0 1px rgba(255, 235, 202, 0.03);
-}
-
-.dock-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.6rem;
-  font-size: 0.76rem;
-}
-
-.dock-header strong {
-  font-size: 0.98rem;
-  color: var(--text);
-}
-
-.dock-header span {
-  color: var(--text-muted);
 }
 
 .progress-note {
@@ -478,6 +463,8 @@ a {
   display: grid;
   gap: 0.35rem;
   align-content: start;
+  min-height: 0;
+  flex: 1 1 auto;
   overflow: auto;
   padding-right: 0.1rem;
 }

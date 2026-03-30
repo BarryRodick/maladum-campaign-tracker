@@ -157,6 +157,37 @@ def recruit_adventurer(
     )
 
 
+def add_learned_skill(
+    driver: webdriver.Chrome,
+    adventurer_id: str,
+    skill_id: str,
+    skill_name: str,
+    level: int = 1,
+) -> None:
+    driver.execute_script(
+        """
+        const state = JSON.parse(window.localStorage.getItem(arguments[0]));
+        const adventurer = state.adventurers.find((entry) => entry.id === arguments[1]);
+        adventurer.campaignState.learnedSkills = adventurer.campaignState.learnedSkills.filter(
+          (entry) => entry.id !== arguments[2]
+        );
+        adventurer.campaignState.learnedSkills.push({
+          id: arguments[2],
+          name: arguments[3],
+          type: 'skill',
+          level: arguments[4]
+        });
+        window.localStorage.setItem(arguments[0], JSON.stringify(state));
+        window.location.reload();
+        """,
+        STORAGE_KEY,
+        adventurer_id,
+        skill_id,
+        skill_name,
+        level,
+    )
+
+
 def open_drawer(driver: webdriver.Chrome, adventurer_id: str, summary_text: str) -> None:
     focus_slide(driver, adventurer_id)
     summary = driver.find_element(
@@ -323,6 +354,10 @@ def main() -> int:
             and count_marked_xp(driver, "character-syrio", 0) == 0
             and count_marked_xp(driver, "character-artain", 0) == 0,
         )
+        check(
+            "fresh cards do not show a redundant progression dock",
+            not driver.find_elements(By.CSS_SELECTOR, ".progress-dock"),
+        )
 
         click_slide_element(
             driver,
@@ -432,35 +467,65 @@ def main() -> int:
             driver.find_element(By.CSS_SELECTOR, ".reference-detail h3").text.strip() == "Reflexes",
         )
 
-        click_slide_element(
-            driver,
-            "character-syrio",
-            'button[data-action="adjust-ability-level"][data-ability-id="reflexes"][data-amount="1"]',
+        check(
+            "starting badge is not duplicated in the dock",
+            not driver.find_elements(
+                By.CSS_SELECTOR,
+                'article.card-slide[data-adventurer-id="character-syrio"] '
+                'button[data-action="select-reference"][data-reference-id="reflexes"].entry-link',
+            ),
         )
+
+        add_learned_skill(driver, "character-syrio", "countershot", "Countershot")
         wait_until(
             wait,
-            lambda current: get_adventurer_state(current, "character-syrio")["campaignState"]["learnedSkills"][0]["level"] == 2,
-            "Reflexes did not level up from the progression dock.",
-        )
-        check(
-            "skill levels can be increased from the card",
-            get_adventurer_state(driver, "character-syrio")["campaignState"]["learnedSkills"][0]["level"] == 2,
+            lambda current: bool(
+                current.find_elements(
+                    By.CSS_SELECTOR,
+                    'article.card-slide[data-adventurer-id="character-syrio"] '
+                    'button[data-action="select-reference"][data-reference-id="countershot"].entry-link',
+                )
+            ),
+            "Added progression skill did not appear in the dock.",
         )
 
         click_slide_element(
             driver,
             "character-syrio",
-            'button[data-action="select-reference"][data-reference-id="reflexes"].entry-link',
+            'button[data-action="adjust-ability-level"][data-ability-id="countershot"][data-amount="1"]',
+        )
+        wait_until(
+            wait,
+            lambda current: next(
+                entry
+                for entry in get_adventurer_state(current, "character-syrio")["campaignState"]["learnedSkills"]
+                if entry["id"] == "countershot"
+            )["level"] == 2,
+            "Countershot did not level up from the progression dock.",
+        )
+        check(
+            "skill levels can be increased from the card",
+            next(
+                entry
+                for entry in get_adventurer_state(driver, "character-syrio")["campaignState"]["learnedSkills"]
+                if entry["id"] == "countershot"
+            )["level"] == 2,
+        )
+
+        click_slide_element(
+            driver,
+            "character-syrio",
+            'button[data-action="select-reference"][data-reference-id="countershot"].entry-link',
         )
         wait_until(
             wait,
             lambda current: current.find_element(By.CSS_SELECTOR, ".reference-detail h3").text.strip()
-            == "Reflexes",
-            "Progression dock link did not keep Reflexes selected.",
+            == "Countershot",
+            "Progression dock link did not keep Countershot selected.",
         )
         check(
             "progression dock links also open rules",
-            driver.find_element(By.CSS_SELECTOR, ".reference-detail h3").text.strip() == "Reflexes",
+            driver.find_element(By.CSS_SELECTOR, ".reference-detail h3").text.strip() == "Countershot",
         )
 
         driver.execute_script(

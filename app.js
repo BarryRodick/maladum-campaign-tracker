@@ -713,40 +713,44 @@ function renderAdventurerSlide(adventurer) {
   const portraitPath = resolveAssetPath(adventurer.profile.image);
   const progressionState = getProgressionState(adventurer);
   const rosterLabel = getRosterLabel(adventurer.id);
+  const cardProgressEntries = getProgressEntries(adventurer, { includeStartingBadge: false });
+  const showCardProgressDock =
+    progressionState.totalPicks > 0
+    || progressionState.totalUsed > 0
+    || cardProgressEntries.length > 0;
 
   return `
-    <article class="card-slide" data-adventurer-id="${adventurer.id}">
-      <div class="scan-card panel">
-        ${portraitPath ? `<img class="scan-art" src="${escapeAttribute(portraitPath)}" alt="${escapeAttribute(adventurer.name)}">` : ""}
+      <article class="card-slide" data-adventurer-id="${adventurer.id}">
+        <div class="scan-card panel">
+          ${portraitPath ? `<img class="scan-art" src="${escapeAttribute(portraitPath)}" alt="${escapeAttribute(adventurer.name)}">` : ""}
         <div class="scan-overlay">
           ${renderTrackHotspots(adventurer)}
           ${renderXpHotspots(adventurer)}
           ${renderBadgeHotspot(template?.startingBadge)}
-          <button
-            class="restore-badge"
-            style="${boxPosition(CARD_OVERLAY.restore)}"
-            data-action="restore-adventurer"
-            data-adventurer-id="${adventurer.id}"
-          >
-            Restore
-          </button>
-          <div class="progress-dock" style="${boxPosition(CARD_OVERLAY.dock)}">
-            <div class="dock-header">
-              <strong>${escapeHtml(adventurer.name)}</strong>
-              <span>${escapeHtml(template?.cardCode ?? "Imported")}</span>
-            </div>
-            <p class="progress-note">${escapeHtml(renderProgressSummary(progressionState))}</p>
-            ${progressionState.totalPicks || progressionState.totalUsed ? `
-              <div class="bonus-dock bonus-dock-card">
-                ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track, true)).join("")}
+            <button
+              class="restore-badge"
+              style="${boxPosition(CARD_OVERLAY.restore)}"
+              data-action="restore-adventurer"
+              data-adventurer-id="${adventurer.id}"
+            >
+              Restore
+            </button>
+            ${showCardProgressDock ? `
+            <div class="progress-dock" style="${boxPosition(CARD_OVERLAY.dock)}">
+              ${progressionState.totalPicks || progressionState.totalUsed ? `
+                <div class="bonus-dock bonus-dock-card">
+                  ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track, true)).join("")}
+                </div>
+              ` : ""}
+              ${cardProgressEntries.length ? `
+              <div class="level-dock">
+                ${renderProgressEntries(adventurer, { includeStartingBadge: false, emptyMessage: "" })}
               </div>
-            ` : ""}
-            <div class="level-dock">
-              ${renderProgressEntries(adventurer)}
+              ` : ""}
             </div>
+            ` : ""}
           </div>
         </div>
-      </div>
 
       <div class="slide-tools panel">
         <div class="section-head compact">
@@ -1018,17 +1022,28 @@ function renderBonusChip(adventurer, track, compact = false) {
         ${canIncrease ? "" : "disabled"}
       >+</button>
     </div>
-  `;
+    `;
 }
 
-function renderProgressEntries(adventurer) {
+function getProgressEntries(adventurer, options = {}) {
+  const { includeStartingBadge = true } = options;
+  const startingBadgeId = getCharacterTemplate(getAdventurerTemplateId(adventurer))?.startingBadge?.id ?? null;
   const entries = [
     ...adventurer.campaignState.learnedSkills.map((entry) => ({ ...entry, pool: "skills" })),
     ...adventurer.campaignState.learnedSpells.map((entry) => ({ ...entry, pool: "spells" }))
   ];
 
+  return includeStartingBadge || !startingBadgeId
+    ? entries
+    : entries.filter((entry) => entry.id !== startingBadgeId);
+}
+
+function renderProgressEntries(adventurer, options = {}) {
+  const { includeStartingBadge = true, emptyMessage = "No card-linked skills or spells marked." } = options;
+  const entries = getProgressEntries(adventurer, { includeStartingBadge });
+
   if (!entries.length) {
-    return `<p class="empty">No card-linked skills or spells marked.</p>`;
+    return emptyMessage ? `<p class="empty">${escapeHtml(emptyMessage)}</p>` : "";
   }
 
   return entries.map((entry) => {
