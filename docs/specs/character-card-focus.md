@@ -13,6 +13,7 @@ Current design choice:
 - optimize the first-pass layout for phone play, with full-page swipe navigation between characters
 - move campaign management onto its own swipe page
 - let the campaign page manage the roster, not just passive campaign counters
+- treat first launch as team setup, not as a prebuilt imported party
 - use a bottom-sheet rules lookup on mobile instead of a long inline rules panel
 
 ## Current Card Set
@@ -30,6 +31,12 @@ Their portraits, starting badges, printed track values, and XP row layouts come 
 ### Swipe pages
 
 Show the tracked team as a horizontally swipeable full-page deck.
+
+If no adventurers have been recruited yet, first launch should land on the campaign page and prompt the user to:
+
+- choose a hero from the imported character-card catalog
+- choose that hero's profession
+- add them to the active party or reserve
 
 Each card should expose:
 
@@ -128,6 +135,7 @@ Use these layers:
 - Rank is currently derived from the XP track rather than treated as a free manual field.
 - Stat increases are now gated by completed XP rows.
 - The campaign page now owns profession assignment and reserve-member support.
+- The default first-launch state is an empty campaign roster built from the imported card catalog, not the previously imported sample party.
 - Full immediate XP allocation into class-board skills and spell choices is still pending because profession/class-board ownership is not yet structured in the imported seed.
 
 ## Next Build Step

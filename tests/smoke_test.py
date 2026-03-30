@@ -129,6 +129,34 @@ def open_campaign_page(driver: webdriver.Chrome) -> None:
     driver.execute_script("arguments[0].click();", button)
 
 
+def recruit_adventurer(
+    driver: webdriver.Chrome,
+    template_id: str,
+    profession: str,
+    placement: str = "active",
+) -> None:
+    if driver.find_elements(By.CSS_SELECTOR, 'button[data-page-kind="campaign"]'):
+        open_campaign_page(driver)
+
+    driver.execute_script(
+        """
+        let characterSelect = document.querySelector('select[data-role="builder-field"][data-field="builderCharacterId"]');
+        characterSelect.value = arguments[0];
+        characterSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        let professionSelect = document.querySelector('select[data-role="builder-field"][data-field="builderProfession"]');
+        professionSelect.value = arguments[1];
+        professionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        let placementSelect = document.querySelector('select[data-role="builder-field"][data-field="builderPlacement"]');
+        placementSelect.value = arguments[2];
+        placementSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        document.querySelector('button[data-action="add-adventurer"]').click();
+        """,
+        template_id,
+        profession,
+        placement,
+    )
+
+
 def open_drawer(driver: webdriver.Chrome, adventurer_id: str, summary_text: str) -> None:
     focus_slide(driver, adventurer_id)
     summary = driver.find_element(
@@ -177,13 +205,13 @@ def main() -> int:
 
         wait_until(
             wait,
-            lambda current: count_character_slides(current) == 3,
-            "Imported overlay cards did not render.",
+            lambda current: bool(current.find_elements(By.CSS_SELECTOR, ".team-builder")),
+            "Team builder did not render.",
         )
 
         check(
-            "renders three imported overlay cards",
-            count_character_slides(driver) == 3,
+            "starts with no rostered character pages",
+            count_character_slides(driver) == 0,
             f"found {count_character_slides(driver)}",
         )
 
@@ -201,27 +229,10 @@ def main() -> int:
         )
 
         check(
-            "shows imported card scans",
-            len(driver.find_elements(By.CSS_SELECTOR, ".scan-art")) == 3,
-        )
-
-        check(
             "shows the rules lookup panel",
             bool(driver.find_elements(By.CSS_SELECTOR, ".reference-detail")),
         )
 
-        body_text = driver.find_element(By.TAG_NAME, "body").text
-        check(
-            "loads the imported roster",
-            all(name in body_text for name in ["Unger", "Syrio", "Artain"]),
-        )
-
-        open_campaign_page(driver)
-        wait_until(
-            wait,
-            lambda current: bool(current.find_elements(By.CSS_SELECTOR, ".team-builder")),
-            "Team builder did not render on the campaign page.",
-        )
         check(
             "shows the team builder",
             bool(driver.find_elements(By.CSS_SELECTOR, ".team-builder")),
@@ -229,19 +240,15 @@ def main() -> int:
 
         team_builder_text = driver.find_element(By.CSS_SELECTOR, ".team-builder").text
         check(
-            "explains when all imported cards are already tracked",
-            "All imported character cards are already being tracked." in team_builder_text,
+            "prompts for hero selection on first launch",
+            "Choose your first hero and then their profession." in team_builder_text,
         )
 
-        driver.execute_script(
-            """
-            const select = document.querySelector(
-              'select[data-role="profession-field"][data-adventurer-id="character-unger"]'
-            );
-            select.value = arguments[0];
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-            """,
-            "Marksman",
+        recruit_adventurer(driver, "character-unger", "Marksman")
+        wait_until(
+            wait,
+            lambda current: count_character_slides(current) == 1,
+            "The first recruited hero did not create a character page.",
         )
         wait_until(
             wait,
@@ -249,8 +256,46 @@ def main() -> int:
             "Unger's profession did not persist from the team builder.",
         )
         check(
-            "can assign a profession from the team builder",
+            "can recruit the first hero with a profession",
             get_adventurer_state(driver, "character-unger")["profile"]["profession"] == "Marksman",
+        )
+
+        recruit_adventurer(driver, "character-syrio", "Rogue")
+        wait_until(
+            wait,
+            lambda current: count_character_slides(current) == 2,
+            "The second recruited hero did not create a character page.",
+        )
+
+        recruit_adventurer(driver, "character-artain", "Magus")
+        wait_until(
+            wait,
+            lambda current: count_character_slides(current) == 3,
+            "The third recruited hero did not create a character page.",
+        )
+
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        check(
+            "loads the recruited roster",
+            all(name in body_text for name in ["Unger", "Syrio", "Artain"]),
+        )
+
+        check(
+            "shows imported card scans after recruitment",
+            len(driver.find_elements(By.CSS_SELECTOR, ".scan-art")) == 3,
+        )
+
+        open_campaign_page(driver)
+        wait_until(
+            wait,
+            lambda current: "All imported character cards are already being tracked."
+            in current.find_element(By.CSS_SELECTOR, ".team-builder").text,
+            "The builder did not report that all imported cards are already tracked.",
+        )
+        check(
+            "explains when all imported cards are already tracked",
+            "All imported character cards are already being tracked."
+            in driver.find_element(By.CSS_SELECTOR, ".team-builder").text,
         )
 
         reserve_button = driver.find_element(
@@ -273,10 +318,10 @@ def main() -> int:
         )
 
         check(
-            "shows imported xp rows from the scanned cards",
-            count_marked_xp(driver, "character-unger", 0) == 2
-            and count_marked_xp(driver, "character-syrio", 0) == 3
-            and count_marked_xp(driver, "character-artain", 0) == 1,
+            "newly recruited heroes start with empty xp rows",
+            count_marked_xp(driver, "character-unger", 0) == 0
+            and count_marked_xp(driver, "character-syrio", 0) == 0
+            and count_marked_xp(driver, "character-artain", 0) == 0,
         )
 
         click_slide_element(
@@ -518,15 +563,15 @@ def main() -> int:
         driver.find_element(By.CSS_SELECTOR, 'button[data-action="reset-imported"]').click()
         wait_until(
             wait,
-            lambda current: count_marked_xp(current, "character-artain", 0) == 1,
-            "Reset imported data did not restore Artain's printed XP.",
+            lambda current: count_character_slides(current) == 0,
+            "Reset did not restore the empty onboarding state.",
         )
         reset_state = load_state(driver)
         check(
-            "reset imported restores seeded data",
-            reset_state["adventurers"][2]["campaignState"]["notes"]
-            == "Imported from character-artain-q61.pdf. XP rows imported from the scanned card."
-            and reset_state["adventurers"][1]["campaignState"]["learnedSkills"][0]["level"] == 1,
+            "reset imported restores fresh campaign setup",
+            not reset_state["adventurers"]
+            and not reset_state["party"]["memberIds"]
+            and not reset_state["party"]["reserveIds"],
         )
 
     except Exception as error:  # noqa: BLE001

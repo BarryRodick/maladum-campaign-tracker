@@ -20,12 +20,14 @@ The MVP is now schema-first:
 ## Core Jobs To Be Done
 
 - Open the app and immediately see the tracked team
+- If the campaign is new, start on the campaign page and recruit the first hero before character pages exist
 - Swipe between tracked characters and the campaign page on a phone-sized screen
 - Spend and restore live health, skill, magic, and action pips during play by tapping the printed card
 - Update imported XP rows between quests
 - Record permanent stat increases and per-card notes
 - Increase or decrease skill levels from the card overlay
 - Assign professions to tracked adventurers
+- Recruit the first hero by selecting a character card and profession
 - Move adventurers between the active party and reserve
 - Tap a starting badge, skill, spell, or ability and see its rules text immediately
 - Export or import the full schema-backed save state
@@ -42,6 +44,7 @@ The MVP is now schema-first:
 
 - Show the active party from `party.memberIds`
 - Keep reserve members in the same tracked roster
+- Start from an empty recruited roster while still using the imported card catalog as the source of available heroes
 - Render each imported scan as a full-page swipeable character card
 - Render card portrait, name, species, and card code inside the card overlay
 - Show starting badge, XP rows, and live tracks directly on the card

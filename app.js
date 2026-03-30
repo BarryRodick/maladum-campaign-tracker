@@ -39,6 +39,7 @@ const ui = {
 };
 
 let seedState = null;
+let freshState = null;
 let professionCatalog = [];
 let state = null;
 
@@ -58,8 +59,9 @@ async function bootstrap() {
       loadProfessionCatalog()
     ]);
     seedState = loadedSeed;
+    freshState = buildFreshState(seedState);
     professionCatalog = loadedProfessionCatalog;
-    state = loadState(seedState);
+    state = loadState(seedState, freshState);
     syncBuilderSelections();
     ui.selectedReferenceId = getDefaultReferenceId();
     render();
@@ -102,17 +104,45 @@ async function loadProfessionCatalog() {
   return [];
 }
 
-function loadState(seed) {
+function buildFreshState(seed) {
+  const next = clone(seed);
+  next.campaign = {
+    ...next.campaign,
+    id: "campaign-new",
+    name: "New Maladum Campaign",
+    currentQuestId: "unassigned",
+    nextQuestOptions: [],
+    delay: 0,
+    renown: 0,
+    stash: 0,
+    secureStorageEnabled: false,
+    notes: "Choose your first hero and their profession to begin."
+  };
+  next.party = {
+    ...next.party,
+    id: "party-new",
+    name: "New Party",
+    memberIds: [],
+    reserveIds: [],
+    storageItemIds: []
+  };
+  next.adventurers = [];
+  next.items = [];
+  next.questLog = [];
+  return next;
+}
+
+function loadState(seed, fresh) {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) {
-    return sanitizeState(seed, seed);
+    return sanitizeState(fresh, seed);
   }
 
   try {
     return sanitizeState(JSON.parse(raw), seed);
   } catch (error) {
     console.error("Failed to load saved state.", error);
-    return sanitizeState(seed, seed);
+    return sanitizeState(fresh, seed);
   }
 }
 
@@ -143,26 +173,20 @@ function sanitizeState(raw, seed) {
   }
 
   if (Array.isArray(raw?.adventurers)) {
-    const incomingById = new Map(raw.adventurers.map((adventurer) => [adventurer.id, adventurer]));
-    const mergedAdventurers = next.adventurers.map((fallback) =>
-      mergeAdventurerRecord(next, fallback, incomingById.get(fallback.id))
-    );
+    const seedAdventurersById = new Map((seed.adventurers ?? []).map((adventurer) => [adventurer.id, clone(adventurer)]));
+    next.adventurers = raw.adventurers.map((incoming) => {
+      const templateId = getAdventurerTemplateId(incoming);
+      const fallback =
+        seedAdventurersById.get(incoming.id)
+        ?? createAdventurerFromTemplate(
+          templateId,
+          getNormalizedProfessionValue(incoming.profile?.profession) || null,
+          next,
+          incoming.id
+        );
 
-    raw.adventurers.forEach((incoming) => {
-      if (mergedAdventurers.some((adventurer) => adventurer.id === incoming.id)) {
-        return;
-      }
-
-      const fallback = createAdventurerFromTemplate(
-        getAdventurerTemplateId(incoming),
-        getNormalizedProfessionValue(incoming.profile?.profession) || null,
-        next,
-        incoming.id
-      );
-      mergedAdventurers.push(mergeAdventurerRecord(next, fallback, incoming));
+      return mergeAdventurerRecord(next, fallback, incoming);
     });
-
-    next.adventurers = mergedAdventurers;
   } else {
     next.adventurers.forEach((adventurer) => normalizeAdventurer(next, adventurer));
   }
@@ -355,7 +379,8 @@ function handleClick(event) {
   }
 
   if (action === "reset-imported") {
-    state = sanitizeState(seedState, seedState);
+    state = sanitizeState(freshState, seedState);
+    ui.activePageIndex = 0;
     ui.selectedReferenceId = getDefaultReferenceId();
     commit(false);
     render();
@@ -767,7 +792,7 @@ function renderTeamBuilder() {
       <div class="section-head">
         <div>
           <h2>Team Builder</h2>
-          <p>${activeCount}/${ACTIVE_PARTY_LIMIT} active · ${reserveCount} reserve</p>
+          <p>${roster.length ? `${activeCount}/${ACTIVE_PARTY_LIMIT} active · ${reserveCount} reserve` : "Choose your first hero and then their profession."}</p>
         </div>
         <span class="team-summary">${roster.length} tracked</span>
       </div>

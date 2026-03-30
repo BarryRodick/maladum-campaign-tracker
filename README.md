@@ -7,7 +7,7 @@ Schema-first web app prototype for tracking imported Maladum character cards. Th
 - Imported character cards: `Unger`, `Syrio`, `Artain`
 - Imported companion cards: `Marksman`, `Guardian`, `Magus`, `Rogue`, `Primorist`
 - Character portraits and card codes rendered from the scan import
-- XP row capacities and current XP marks captured from the scanned character cards
+- XP row capacities captured from the scanned character cards
 - Rules lookup built from the imported profession and spell cards
 
 Known scan gaps:
@@ -57,6 +57,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-smoke-test.ps1
 - Uses `schemas/campaign-tracker.schema.json` as the save-state contract
 - Renders the imported cards in a full-viewport swipe deck instead of a generic dashboard
 - Tracks the whole roster, not just the current active party, by keeping active and reserve members in the same saved team state
+- Starts from an empty campaign roster so first launch begins with hero and profession selection
 - Keeps the card scans in their native landscape aspect ratio so the printed pips align with the overlay
 - Tracks live health, skill, magic, action, and XP pips by tapping the printed circles on the scans
 - Uses the card's blank lower-right area as a progression dock for row-completion stat rewards and learned skill levels
@@ -88,7 +89,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-smoke-test.ps1
 ## Notes
 
 - The schema now allows variable-length XP rows so it can match the real printed character cards.
-- The imported seed still starts with profession placeholders, but the app now lets you assign professions from the team-builder UI.
+- The imported scan set is now treated as a card catalog, so first launch starts empty and the team-builder UI is used to recruit the first hero.
 - Relative asset paths are used inside the seed and catalog so the dataset works when served locally from the project root.
 - The current overlay calibration is tuned to the imported Maladum scans and assumes the same printed layout across this first card set.
 - Stat increases are now gated by completed XP rows in line with the rulebook.
