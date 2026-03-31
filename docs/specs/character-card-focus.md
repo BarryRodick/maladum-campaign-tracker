@@ -84,6 +84,7 @@ Used during a quest.
 Used between quests.
 
 - tap imported XP rows to update progression
+- spend marked XP immediately on profession-board skills or profession-matched spells
 - record permanent stat increases in the card's blank progression dock, but only when completed XP rows unlock them
 - raise or lower learned skill levels in the same progression dock
 - assign a profession to each tracked adventurer from the campaign page
@@ -134,14 +135,16 @@ Use these layers:
 - Overlay positions are currently calibrated against the imported landscape scan layout inside the app.
 - Rank is currently derived from the XP track rather than treated as a free manual field.
 - Stat increases are now gated by completed XP rows.
+- Profession-board skills now come from the imported board catalog for the selected profession.
+- Marked XP is now treated as spendable progression, with board skills and spells rank-gated from the derived XP rank.
+- XP cannot be cleared if doing so would invalidate learned skills, learned spells, or already-claimed row rewards.
 - The campaign page now owns profession assignment and reserve-member support.
 - The default first-launch state is an empty campaign roster built from the imported card catalog, not the previously imported sample party.
-- Full immediate XP allocation into class-board skills and spell choices is still pending because profession/class-board ownership is not yet structured in the imported seed.
+- Profession ownership is still selected manually because the imported character scans do not prove which board belongs to which hero.
 
 ## Next Build Step
 
 The next useful feature is not another sample UI pass. It is deeper campaign editing against the same schema:
 
-- add or remove learned skills and spells from the dashboard
 - start recording quest log entries and item ownership
 - support recruiting from larger imported card sets without relying on the current three-character seed

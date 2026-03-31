@@ -298,7 +298,7 @@ def main() -> int:
             "The second recruited hero did not create a character page.",
         )
 
-        recruit_adventurer(driver, "character-artain", "Magus")
+        recruit_adventurer(driver, "character-artain", "Primorist")
         wait_until(
             wait,
             lambda current: count_character_slides(current) == 3,
@@ -390,19 +390,154 @@ def main() -> int:
             get_adventurer_state(driver, "character-syrio")["trackerState"]["currentSkill"] == 0,
         )
 
+        open_drawer(driver, "character-syrio", "Progression")
+        rogue_board_tiles = driver.find_elements(
+            By.XPATH,
+            (
+                '//article[@data-adventurer-id="character-syrio"]'
+                '//details[summary[normalize-space()="Progression"]]//*[contains(@class,"board-skill-tile")]'
+            ),
+        )
+        check(
+            "shows class board skills for the selected profession",
+            len(rogue_board_tiles) == 8,
+            f"found {len(rogue_board_tiles)}",
+        )
+
+        camouflage_learn_button = driver.find_element(
+            By.XPATH,
+            (
+                '//article[@data-adventurer-id="character-syrio"]'
+                '//details[summary[normalize-space()="Progression"]]'
+                '//button[@data-action="learn-board-skill" and @data-skill-id="camouflage"]'
+            ),
+        )
+        check(
+            "board skills require xp allocation before learning",
+            camouflage_learn_button.get_attribute("disabled") is not None,
+        )
+
         click_slide_element(
             driver,
             "character-syrio",
-            'button[data-action="set-xp"][data-row="0"][data-value="4"]',
+            'button[data-action="set-xp"][data-row="0"][data-value="1"]',
         )
         wait_until(
             wait,
-            lambda current: get_adventurer_state(current, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 4,
+            lambda current: get_adventurer_state(current, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 1,
             "Syrio's XP row did not update from the card overlay.",
         )
         check(
             "printed xp pips are directly clickable",
-            get_adventurer_state(driver, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 4,
+            get_adventurer_state(driver, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 1,
+        )
+
+        open_drawer(driver, "character-syrio", "Progression")
+        camouflage_learn_button = driver.find_element(
+            By.XPATH,
+            (
+                '//article[@data-adventurer-id="character-syrio"]'
+                '//details[summary[normalize-space()="Progression"]]'
+                '//button[@data-action="learn-board-skill" and @data-skill-id="camouflage"]'
+            ),
+        )
+        check(
+            "marked xp becomes available for skill learning",
+            camouflage_learn_button.get_attribute("disabled") is None,
+        )
+
+        driver.execute_script("arguments[0].click();", camouflage_learn_button)
+        wait_until(
+            wait,
+            lambda current: any(
+                entry["id"] == "camouflage"
+                for entry in get_adventurer_state(current, "character-syrio")["campaignState"]["learnedSkills"]
+            ),
+            "Camouflage did not learn from the class board.",
+        )
+        check(
+            "class board can learn a new skill",
+            any(
+                entry["id"] == "camouflage"
+                for entry in get_adventurer_state(driver, "character-syrio")["campaignState"]["learnedSkills"]
+            ),
+        )
+
+        click_slide_element(
+            driver,
+            "character-syrio",
+            'button[data-action="set-xp"][data-row="0"][data-value="1"]',
+        )
+        wait_until(
+            wait,
+            lambda current: get_adventurer_state(current, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 1,
+            "Spent XP was incorrectly removed from Syrio.",
+        )
+        check(
+            "spent xp cannot be cleared while a learned skill depends on it",
+            get_adventurer_state(driver, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 1,
+        )
+
+        click_slide_element(
+            driver,
+            "character-syrio",
+            'button[data-action="set-xp"][data-row="0"][data-value="2"]',
+        )
+        wait_until(
+            wait,
+            lambda current: get_adventurer_state(current, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 2,
+            "Syrio's first XP row did not advance to two marks.",
+        )
+
+        open_drawer(driver, "character-syrio", "Progression")
+        camouflage_plus_button = driver.find_element(
+            By.CSS_SELECTOR,
+            (
+                'article.card-slide[data-adventurer-id="character-syrio"] '
+                'button[data-action="adjust-ability-level"][data-ability-id="camouflage"][data-amount="1"]'
+            ),
+        )
+        check(
+            "skill improvement is rank gated until the next row starts",
+            camouflage_plus_button.get_attribute("disabled") is not None,
+        )
+
+        click_slide_element(
+            driver,
+            "character-syrio",
+            'button[data-action="set-xp"][data-row="1"][data-value="1"]',
+        )
+        wait_until(
+            wait,
+            lambda current: get_adventurer_state(current, "character-syrio")["campaignState"]["rank"] == 2,
+            "Syrio did not reach rank 2 after marking the second XP row.",
+        )
+
+        open_drawer(driver, "character-syrio", "Progression")
+        camouflage_plus_button = driver.find_element(
+            By.CSS_SELECTOR,
+            (
+                'article.card-slide[data-adventurer-id="character-syrio"] '
+                'button[data-action="adjust-ability-level"][data-ability-id="camouflage"][data-amount="1"]'
+            ),
+        )
+        driver.execute_script("arguments[0].click();", camouflage_plus_button)
+        wait_until(
+            wait,
+            lambda current: next(
+                entry
+                for entry in get_adventurer_state(current, "character-syrio")["campaignState"]["learnedSkills"]
+                if entry["id"] == "camouflage"
+            )["level"] == 2,
+            "Camouflage did not level up when Syrio reached rank 2.",
+        )
+        check(
+            "skill levels can be increased from earned xp at the current rank",
+            next(
+                entry
+                for entry in get_adventurer_state(driver, "character-syrio")["campaignState"]["learnedSkills"]
+                if entry["id"] == "camouflage"
+            )["level"] == 2,
         )
 
         click_slide_element(
@@ -472,60 +607,63 @@ def main() -> int:
             not driver.find_elements(
                 By.CSS_SELECTOR,
                 'article.card-slide[data-adventurer-id="character-syrio"] '
-                'button[data-action="select-reference"][data-reference-id="reflexes"].entry-link',
+                '.progress-dock button[data-action="select-reference"][data-reference-id="reflexes"].entry-link',
             ),
-        )
-
-        add_learned_skill(driver, "character-syrio", "countershot", "Countershot")
-        wait_until(
-            wait,
-            lambda current: bool(
-                current.find_elements(
-                    By.CSS_SELECTOR,
-                    'article.card-slide[data-adventurer-id="character-syrio"] '
-                    'button[data-action="select-reference"][data-reference-id="countershot"].entry-link',
-                )
-            ),
-            "Added progression skill did not appear in the dock.",
         )
 
         click_slide_element(
             driver,
             "character-syrio",
-            'button[data-action="adjust-ability-level"][data-ability-id="countershot"][data-amount="1"]',
-        )
-        wait_until(
-            wait,
-            lambda current: next(
-                entry
-                for entry in get_adventurer_state(current, "character-syrio")["campaignState"]["learnedSkills"]
-                if entry["id"] == "countershot"
-            )["level"] == 2,
-            "Countershot did not level up from the progression dock.",
-        )
-        check(
-            "skill levels can be increased from the card",
-            next(
-                entry
-                for entry in get_adventurer_state(driver, "character-syrio")["campaignState"]["learnedSkills"]
-                if entry["id"] == "countershot"
-            )["level"] == 2,
-        )
-
-        click_slide_element(
-            driver,
-            "character-syrio",
-            'button[data-action="select-reference"][data-reference-id="countershot"].entry-link',
+            'button[data-action="select-reference"][data-reference-id="camouflage"].entry-link',
         )
         wait_until(
             wait,
             lambda current: current.find_element(By.CSS_SELECTOR, ".reference-detail h3").text.strip()
-            == "Countershot",
-            "Progression dock link did not keep Countershot selected.",
+            == "Camouflage",
+            "Progression dock link did not keep Camouflage selected.",
         )
         check(
             "progression dock links also open rules",
-            driver.find_element(By.CSS_SELECTOR, ".reference-detail h3").text.strip() == "Countershot",
+            driver.find_element(By.CSS_SELECTOR, ".reference-detail h3").text.strip() == "Camouflage",
+        )
+
+        open_drawer(driver, "character-artain", "Spells")
+        primorist_spells = driver.find_elements(
+            By.XPATH,
+            (
+                '//article[@data-adventurer-id="character-artain"]'
+                '//details[summary[normalize-space()="Spells"]]//*[contains(@class,"spell-tile")]'
+            ),
+        )
+        check(
+            "shows spell choices for spell-card professions",
+            len(primorist_spells) == 8,
+            f"found {len(primorist_spells)}",
+        )
+
+        telekinesis_learn_button = driver.find_element(
+            By.XPATH,
+            (
+                '//article[@data-adventurer-id="character-artain"]'
+                '//details[summary[normalize-space()="Spells"]]'
+                '//button[@data-action="learn-spell" and @data-spell-id="telekinesis"]'
+            ),
+        )
+        driver.execute_script("arguments[0].click();", telekinesis_learn_button)
+        wait_until(
+            wait,
+            lambda current: any(
+                entry["id"] == "telekinesis"
+                for entry in get_adventurer_state(current, "character-artain")["campaignState"]["learnedSpells"]
+            ),
+            "Telekinesis did not learn from the spell drawer.",
+        )
+        check(
+            "spell learning uses the imported spell card",
+            any(
+                entry["id"] == "telekinesis"
+                for entry in get_adventurer_state(driver, "character-artain")["campaignState"]["learnedSpells"]
+            ),
         )
 
         driver.execute_script(

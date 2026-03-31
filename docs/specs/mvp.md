@@ -25,7 +25,8 @@ The MVP is now schema-first:
 - Spend and restore live health, skill, magic, and action pips during play by tapping the printed card
 - Update imported XP rows between quests
 - Record permanent stat increases and per-card notes
-- Increase or decrease skill levels from the card overlay
+- Spend XP into profession-board skills and profession-matched spells
+- Increase or decrease learned skill levels from the card overlay
 - Assign professions to tracked adventurers
 - Recruit the first hero by selecting a character card and profession
 - Move adventurers between the active party and reserve
@@ -61,8 +62,12 @@ The MVP is now schema-first:
 ### 4. Persistent progression tracking
 
 - Clickable printed XP rows using the capacities imported from each scanned card
+- Derived-rank gating based on the marked XP rows
+- Mandatory XP spend into profession-board skills or profession-matched spells
+- XP unmark protection when learned skills, spells, or claimed row rewards depend on the current marks
 - Permanent stat increase counters in the progression dock, gated by completed XP rows
 - Learned skill level controls in the progression dock
+- Profession board and spell drawer sections in the rules/progression UI
 - Per-card campaign notes
 
 ### 5. Rules lookup
@@ -107,12 +112,10 @@ The MVP is now schema-first:
 - The imported card set does not prove which profession card belongs to which character, so professions still need to be chosen manually in the app
 - Starting badge rules for `Persuasion`, `Entertainer`, and `Reflexes` are placeholders because no separate rules cards were scanned
 - `Focused Energy` is only partially transcribed because the scan is obscured
-- Full mandatory XP allocation into class-board skills and spell choices is still pending because the imported data does not yet map professions/class boards to the three scanned characters
 
 ## Suggested Next Build Step
 
 The next sensible move is deeper campaign editing against the same schema:
 
-- add or remove learned skills and spells
 - begin wiring quest-log and item sections from the existing schema
 - let larger imported character catalogs feed the recruit flow directly

@@ -65,6 +65,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-smoke-test.ps1
 - Adds a dedicated campaign swipe page for quest, stash, renown, delay, notes, and team-building
 - Allows profession assignment per adventurer from the campaign page
 - Allows active versus reserve roster management so the whole team can be tracked over time
+- Loads profession-board skills from the imported board catalog for the selected profession
+- Treats marked XP as spendable progression that must be allocated into profession-board skills or matching spells
+- Gates skill and spell learning by current derived rank and blocks clearing XP if that would leave spent progress illegal
 - Opens the rules library in a bottom sheet on mobile and a sticky sidebar on desktop
 - Searches a local lookup library across imported skills, spells, and abilities
 - Saves the full schema state to `localStorage`
@@ -94,4 +97,4 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-smoke-test.ps1
 - The current overlay calibration is tuned to the imported Maladum scans and assumes the same printed layout across this first card set.
 - Stat increases are now gated by completed XP rows in line with the rulebook.
 - The current recruit flow can add newly imported character templates to the tracked roster; it does not yet support arbitrary manual card creation.
-- Full mandatory XP allocation into class-board skills and spell choices is still pending because the imported character set does not yet include enough structured profession/class-board ownership data.
+- Profession ownership is still chosen manually in the app because the imported character scans do not prove which profession board belongs to which hero.

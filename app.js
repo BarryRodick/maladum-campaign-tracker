@@ -38,6 +38,20 @@ const ui = {
   builderPlacement: "active"
 };
 
+const PROFESSION_NAME_ALIASES = {
+  prymorist: "Primorist",
+  primorist: "Primorist"
+};
+
+const GLOBAL_SKILL_ID_ALIASES = {
+  countershot: "countershot",
+  countershotskill: "countershot"
+};
+
+const PROFESSION_SCOPED_SKILL_ID_ALIASES = {
+  "sellsword:countershot": "countershot"
+};
+
 let seedState = null;
 let freshState = null;
 let professionCatalog = [];
@@ -88,14 +102,16 @@ async function loadProfessionCatalog() {
     }
 
     const overview = await response.json();
-    if (Array.isArray(overview?.summary?.uniqueProfessions)) {
-      return clone(overview.summary.uniqueProfessions);
+    if (Array.isArray(overview?.professionBoards)) {
+      return clone(overview.professionBoards);
     }
 
-    if (Array.isArray(overview?.professionBoards)) {
-      return overview.professionBoards
-        .map((board) => board.profession)
-        .filter(Boolean);
+    if (Array.isArray(overview?.summary?.uniqueProfessions)) {
+      return overview.summary.uniqueProfessions.map((profession) => ({
+        profession,
+        boardCode: null,
+        skills: []
+      }));
     }
   } catch (error) {
     console.warn("Failed to load profession catalog; falling back to imported references only.", error);
@@ -254,7 +270,15 @@ function handleClick(event) {
     const cap = getXpCapacities(adventurer)[row] ?? 0;
     const current = adventurer.campaignState.xpMarksByRow[row] ?? 0;
     const nextValue = current === value ? value - 1 : value;
-    adventurer.campaignState.xpMarksByRow[row] = clamp(nextValue, 0, cap);
+    const clampedValue = clamp(nextValue, 0, cap);
+    const nextMarks = clone(adventurer.campaignState.xpMarksByRow);
+    nextMarks[row] = clampedValue;
+
+    if (!canApplyXpMarks(adventurer, nextMarks)) {
+      return;
+    }
+
+    adventurer.campaignState.xpMarksByRow[row] = clampedValue;
     commit();
     return;
   }
@@ -290,7 +314,93 @@ function handleClick(event) {
     if (!entry || entry.type !== "skill") {
       return;
     }
-    entry.level = clamp((entry.level ?? 1) + amount, 1, 3);
+
+    const currentLevel = entry.level ?? 1;
+    const minLevel = getSkillMinimumLevel(adventurer, id);
+    const maxLevel = getSkillMaxLevel(adventurer, id);
+
+    if (amount > 0) {
+      if (getProgressionState(adventurer).xpPending <= 0 || currentLevel >= maxLevel) {
+        return;
+      }
+
+      entry.level = clamp(currentLevel + amount, Math.max(1, minLevel || 1), maxLevel);
+      commit();
+      return;
+    }
+
+    if (currentLevel === 1 && minLevel === 0) {
+      const index = pool.indexOf(entry);
+      if (index !== -1) {
+        pool.splice(index, 1);
+        commit();
+      }
+      return;
+    }
+
+    if (currentLevel > minLevel) {
+      entry.level = currentLevel - 1;
+      commit();
+      return;
+    }
+
+    return;
+  }
+
+  if (action === "learn-board-skill") {
+    const adventurer = getAdventurer(target.dataset.adventurerId);
+    const skillId = target.dataset.skillId;
+    const skillName = target.dataset.skillName;
+
+    if (!adventurer || !canLearnBoardSkill(adventurer, skillId)) {
+      return;
+    }
+
+    adventurer.campaignState.learnedSkills.push({
+      id: skillId,
+      name: skillName,
+      type: "skill",
+      level: 1
+    });
+    commit();
+    return;
+  }
+
+  if (action === "learn-spell") {
+    const adventurer = getAdventurer(target.dataset.adventurerId);
+    const spellId = target.dataset.spellId;
+    const spellName = target.dataset.spellName;
+
+    if (!adventurer || !canLearnSpell(adventurer, spellId)) {
+      return;
+    }
+
+    adventurer.campaignState.learnedSpells.push({
+      id: spellId,
+      name: spellName,
+      type: "spell",
+      level: null
+    });
+    commit();
+    return;
+  }
+
+  if (action === "remove-ability") {
+    const adventurer = getAdventurer(target.dataset.adventurerId);
+    const pool = target.dataset.pool === "spells"
+      ? adventurer?.campaignState.learnedSpells
+      : adventurer?.campaignState.learnedSkills;
+    const id = target.dataset.abilityId;
+    if (!adventurer || !pool) {
+      return;
+    }
+
+    const entryIndex = pool.findIndex((entry) => entry.id === id);
+    if (entryIndex === -1) {
+      return;
+    }
+
+    pool.splice(entryIndex, 1);
     commit();
     return;
   }
@@ -746,7 +856,7 @@ function renderAdventurerSlide(adventurer) {
           </div>
         </div>
 
-      <div class="slide-tools panel">
+        <div class="slide-tools panel">
         <div class="section-head compact">
           <h4>${escapeHtml(adventurer.profile.species)} · ${escapeHtml(getDisplayProfession(adventurer))}</h4>
           <p>Rank ${adventurer.campaignState.rank} · ${escapeHtml(rosterLabel)}</p>
@@ -757,6 +867,27 @@ function renderAdventurerSlide(adventurer) {
             ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track, false)).join("")}
           </div>
           <p class="progress-note">${escapeHtml(renderProgressSummary(progressionState))}</p>
+          <p class="progress-note${progressionState.xpOverspent ? " is-warning" : ""}">${escapeHtml(renderXpAllocationSummary(progressionState))}</p>
+          <div class="drawer-section">
+            <div class="drawer-section-head">
+              <strong>Learned</strong>
+              <span>${escapeHtml(String(getProgressEntries(adventurer).length))}</span>
+            </div>
+            <div class="level-dock drawer-level-dock">
+              ${renderProgressEntries(adventurer, { emptyMessage: "No learned skills or spells yet." })}
+            </div>
+          </div>
+          <div class="drawer-section">
+            <div class="drawer-section-head">
+              <strong>Class Board</strong>
+              <span>${escapeHtml(getProfessionBoardLabel(adventurer))}</span>
+            </div>
+            ${renderClassBoard(adventurer)}
+          </div>
+        </details>
+        <details class="tool-drawer">
+          <summary>Spells</summary>
+          ${renderSpellBoard(adventurer)}
         </details>
         <details class="tool-drawer">
           <summary>Status Effects</summary>
@@ -1067,8 +1198,12 @@ function renderProgressEntries(adventurer, options = {}) {
     const reference = getReferenceEntry(entry.id);
     const label = reference?.name ?? entry.name ?? entry.id;
     const level = entry.level ?? null;
-    const levelControls = entry.type === "skill"
-      ? `
+
+    let controls = `<span class="entry-tag">${entry.type}</span>`;
+    if (entry.type === "skill") {
+      const canDecrease = canDecreaseAbilityLevel(adventurer, entry);
+      const canIncrease = canIncreaseAbilityLevel(adventurer, entry);
+      controls = `
         <div class="level-controls">
           <button
             class="mini-step"
@@ -1077,6 +1212,7 @@ function renderProgressEntries(adventurer, options = {}) {
             data-ability-id="${entry.id}"
             data-pool="${entry.pool}"
             data-amount="-1"
+            ${canDecrease ? "" : "disabled"}
           >-</button>
           <strong>${level ?? 1}</strong>
           <button
@@ -1086,20 +1222,183 @@ function renderProgressEntries(adventurer, options = {}) {
             data-ability-id="${entry.id}"
             data-pool="${entry.pool}"
             data-amount="1"
+            ${canIncrease ? "" : "disabled"}
           >+</button>
         </div>
-      `
-      : `<span class="entry-tag">${entry.type}</span>`;
+      `;
+    } else if (entry.pool === "spells") {
+      controls = `
+        <button
+          class="mini-step"
+          data-action="remove-ability"
+          data-adventurer-id="${adventurer.id}"
+          data-ability-id="${entry.id}"
+          data-pool="${entry.pool}"
+          aria-label="Remove ${escapeAttribute(label)}"
+          title="Remove ${escapeAttribute(label)}"
+        >&times;</button>
+      `;
+    }
 
     return `
       <div class="progress-entry">
         <button class="entry-link" data-action="select-reference" data-reference-id="${entry.id}">
           ${escapeHtml(label)}
         </button>
-        ${levelControls}
+        ${controls}
       </div>
     `;
   }).join("");
+}
+
+function renderClassBoard(adventurer) {
+  const profession = getNormalizedProfessionValue(adventurer.profile.profession);
+  if (!profession) {
+    return `<p class="empty">Assign a profession to see available skills.</p>`;
+  }
+
+  const board = getProfessionBoard(profession);
+  if (!board?.skills?.length) {
+    return `<p class="empty">No board data available for ${escapeHtml(profession)}.</p>`;
+  }
+
+  return `
+    <div class="board-skill-grid">
+      ${board.skills.map((skill) => renderBoardSkillTile(adventurer, board, skill)).join("")}
+    </div>
+  `;
+}
+
+function renderBoardSkillTile(adventurer, board, skill) {
+  const skillId = normalizeSkillId(skill.name, board.profession, state);
+  const learnedEntry = adventurer.campaignState.learnedSkills.find((entry) => entry.id === skillId) ?? null;
+  const totalAvailablePips = getBoardSkillPipCount(skill);
+  const maxLevel = getSkillMaxLevel(adventurer, skillId, totalAvailablePips);
+  const currentLevel = learnedEntry?.type === "skill" ? (learnedEntry.level ?? 1) : 0;
+  const unlockedPips = Math.min(totalAvailablePips, adventurer.campaignState.rank);
+  const hasReference = Boolean(getReferenceEntry(skillId));
+
+  let actionMarkup = `<span class="board-skill-meta">${escapeHtml(learnedEntry ? "Known" : "Need XP")}</span>`;
+  if (!learnedEntry) {
+    actionMarkup = `
+      <button
+        class="reward-choice board-learn-btn"
+        data-action="learn-board-skill"
+        data-adventurer-id="${adventurer.id}"
+        data-skill-id="${skillId}"
+        data-skill-name="${escapeAttribute(skill.name)}"
+        ${canLearnBoardSkill(adventurer, skillId) ? "" : "disabled"}
+      >Learn</button>
+    `;
+  } else if (learnedEntry.type === "skill" && canIncreaseAbilityLevel(adventurer, learnedEntry)) {
+    actionMarkup = `
+      <button
+        class="reward-choice board-learn-btn"
+        data-action="adjust-ability-level"
+        data-adventurer-id="${adventurer.id}"
+        data-ability-id="${skillId}"
+        data-pool="skills"
+        data-amount="1"
+      >+1</button>
+    `;
+  } else if (learnedEntry.type === "skill") {
+    actionMarkup = `<span class="board-skill-meta">Rank ${currentLevel}/${maxLevel}</span>`;
+  } else {
+    actionMarkup = `<span class="board-skill-meta">Granted</span>`;
+  }
+
+  return `
+    <div class="board-skill-tile">
+      ${hasReference
+        ? `<button class="entry-link board-skill-link" data-action="select-reference" data-reference-id="${skillId}">${escapeHtml(skill.name)}</button>`
+        : `<div class="board-skill-link board-skill-link-static">${escapeHtml(skill.name)}</div>`}
+      <div class="board-skill-pips" aria-hidden="true">
+        ${Array.from({ length: totalAvailablePips }, (_, index) => {
+          const classes = [
+            "board-skill-pip",
+            index < currentLevel ? "is-filled" : "",
+            index >= currentLevel && index < unlockedPips ? "is-open" : "",
+            index >= unlockedPips ? "is-locked" : ""
+          ].filter(Boolean).join(" ");
+          return `<span class="${classes}"></span>`;
+        }).join("")}
+      </div>
+      <div class="board-skill-action">
+        ${actionMarkup}
+      </div>
+    </div>
+  `;
+}
+
+function renderSpellBoard(adventurer) {
+  const profession = getNormalizedProfessionValue(adventurer.profile.profession);
+  if (!profession) {
+    return `<p class="empty">Assign a profession to see available spells.</p>`;
+  }
+
+  const spellCard = getSpellCardForProfession(profession);
+  if (!spellCard?.abilities?.length) {
+    return `<p class="empty">No spell board data available for ${escapeHtml(profession)}.</p>`;
+  }
+
+  return `
+    <div class="drawer-section">
+      <div class="drawer-section-head">
+        <strong>${escapeHtml(spellCard.name)}</strong>
+        <span>${escapeHtml(`Rank ${adventurer.campaignState.rank}`)}</span>
+      </div>
+      <div class="board-skill-grid spell-grid">
+        ${spellCard.abilities.map((spell) => renderSpellTile(adventurer, spell)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderSpellTile(adventurer, spell) {
+  const reference = getReferenceEntry(spell.id);
+  const learned = adventurer.campaignState.learnedSpells.some((entry) => entry.id === spell.id);
+  const requiredRank = reference?.level ?? 1;
+  const canLearn = canLearnSpell(adventurer, spell.id);
+
+  let actionMarkup = `<span class="board-skill-meta">${escapeHtml(requiredRank > adventurer.campaignState.rank ? `Rank ${requiredRank}` : "Need XP")}</span>`;
+  if (learned) {
+    actionMarkup = `
+      <button
+        class="mini-step"
+        data-action="remove-ability"
+        data-adventurer-id="${adventurer.id}"
+        data-ability-id="${spell.id}"
+        data-pool="spells"
+        aria-label="Remove ${escapeAttribute(spell.name)}"
+        title="Remove ${escapeAttribute(spell.name)}"
+      >&times;</button>
+    `;
+  } else if (canLearn) {
+    actionMarkup = `
+      <button
+        class="reward-choice board-learn-btn"
+        data-action="learn-spell"
+        data-adventurer-id="${adventurer.id}"
+        data-spell-id="${spell.id}"
+        data-spell-name="${escapeAttribute(spell.name)}"
+      >Learn</button>
+    `;
+  }
+
+  return `
+    <div class="board-skill-tile spell-tile">
+      <button class="entry-link board-skill-link" data-action="select-reference" data-reference-id="${spell.id}">
+        ${escapeHtml(spell.name)}
+      </button>
+      <div class="spell-meta-row">
+        <span class="board-skill-meta">${escapeHtml(`Spell ${requiredRank}`)}</span>
+        ${learned ? '<span class="entry-tag">learned</span>' : ""}
+      </div>
+      <div class="board-skill-action">
+        ${actionMarkup}
+      </div>
+    </div>
+  `;
 }
 
 function renderStatusToggle(adventurer, effect) {
@@ -1182,20 +1481,20 @@ function getSelectedReference(entries) {
   return entries.find((entry) => entry.id === ui.selectedReferenceId) ?? entries[0];
 }
 
-function getAllReferenceEntries() {
+function getAllReferenceEntries(sourceState = state) {
   return [
-    ...state.referenceLibrary.skills,
-    ...state.referenceLibrary.spells,
-    ...state.referenceLibrary.abilities
+    ...(sourceState?.referenceLibrary?.skills ?? []),
+    ...(sourceState?.referenceLibrary?.spells ?? []),
+    ...(sourceState?.referenceLibrary?.abilities ?? [])
   ];
 }
 
-function getReferenceEntry(id) {
+function getReferenceEntry(id, sourceState = state) {
   if (!id) {
     return null;
   }
 
-  return getAllReferenceEntries().find((entry) => entry.id === id) ?? null;
+  return getAllReferenceEntries(sourceState).find((entry) => entry.id === id) ?? null;
 }
 
 function getRosterAdventurers() {
@@ -1230,22 +1529,24 @@ function getAvailableCharacterTemplates() {
 
 function getProfessionOptions() {
   const options = new Map();
-  professionCatalog.forEach((profession) => {
+  professionCatalog.forEach((board) => {
+    const profession = getNormalizedProfessionValue(board?.profession);
     if (profession) {
-      options.set(profession.toLowerCase(), profession);
+      options.set(getLooseKey(profession), profession);
     }
   });
 
   (state.cardCatalog?.referenceCards ?? []).forEach((card) => {
-    if (card?.name) {
-      options.set(card.name.toLowerCase(), card.name);
+    const profession = getNormalizedProfessionValue(card?.name);
+    if (profession) {
+      options.set(getLooseKey(profession), profession);
     }
   });
 
   state.adventurers.forEach((adventurer) => {
     const profession = getNormalizedProfessionValue(adventurer.profile.profession);
     if (profession) {
-      options.set(profession.toLowerCase(), profession);
+      options.set(getLooseKey(profession), profession);
     }
   });
 
@@ -1258,7 +1559,7 @@ function getNormalizedProfessionValue(value) {
     return "";
   }
 
-  return normalized;
+  return PROFESSION_NAME_ALIASES[getLooseKey(normalized)] ?? normalized;
 }
 
 function getDisplayProfession(adventurer) {
@@ -1461,6 +1762,14 @@ function getDerivedRank(adventurer, sourceState = state) {
   return Math.max(1, rowsWithMarks);
 }
 
+function getDerivedRankFromMarks(adventurer, marks, sourceState = state) {
+  const rowsWithMarks = getXpCapacities(adventurer, sourceState)
+    .filter((_, index) => (marks[index] ?? 0) > 0)
+    .length;
+
+  return Math.max(1, rowsWithMarks);
+}
+
 function getProgressionState(adventurer, sourceState = state) {
   const completedRows = getCompletedXpRows(adventurer, sourceState);
   const earlyPicks = completedRows.reduce((total, isComplete, index) => {
@@ -1496,6 +1805,9 @@ function getProgressionState(adventurer, sourceState = state) {
   const lateUsed = actionUsed + overflowIntoLate;
   const totalPicks = earlyPicks + latePicks;
   const totalUsed = nonActionUsed + actionUsed;
+  const xpMarked = getTotalMarkedXp(adventurer);
+  const xpSpent = getSpentXpAllocations(adventurer, sourceState);
+  const xpOverspent = Math.max(0, xpSpent - xpMarked);
 
   return {
     completedRows,
@@ -1505,8 +1817,244 @@ function getProgressionState(adventurer, sourceState = state) {
     totalPicks,
     totalUsed,
     totalRemaining: Math.max(0, totalPicks - totalUsed),
-    lateRemaining: Math.max(0, latePicks - lateUsed)
+    lateRemaining: Math.max(0, latePicks - lateUsed),
+    xpMarked,
+    xpSpent,
+    xpPending: Math.max(0, xpMarked - xpSpent),
+    xpOverspent
   };
+}
+
+function getTotalMarkedXp(adventurer) {
+  return (adventurer.campaignState.xpMarksByRow ?? []).reduce((total, mark) => total + (mark ?? 0), 0);
+}
+
+function getSpentXpAllocations(adventurer, sourceState = state) {
+  const startingBadge = getCharacterTemplate(getAdventurerTemplateId(adventurer), sourceState)?.startingBadge ?? null;
+  const skillSpend = adventurer.campaignState.learnedSkills.reduce((total, entry) => {
+    if (entry.type !== "skill") {
+      return total;
+    }
+
+    const baseLevel = startingBadge?.type === "skill" && startingBadge.id === entry.id
+      ? startingBadge.level ?? 1
+      : 0;
+    return total + Math.max(0, (entry.level ?? 1) - baseLevel);
+  }, 0);
+
+  return skillSpend + adventurer.campaignState.learnedSpells.length;
+}
+
+function canApplyXpMarks(adventurer, nextMarks, sourceState = state) {
+  const nextTotalMarkedXp = nextMarks.reduce((total, mark) => total + (mark ?? 0), 0);
+  if (nextTotalMarkedXp < getSpentXpAllocations(adventurer, sourceState)) {
+    return false;
+  }
+
+  const nextRank = getDerivedRankFromMarks(adventurer, nextMarks, sourceState);
+
+  for (const entry of adventurer.campaignState.learnedSkills) {
+    if (entry.type !== "skill") {
+      continue;
+    }
+
+    const maxLevel = Math.max(
+      getSkillMinimumLevel(adventurer, entry.id, sourceState),
+      Math.min(getBoardSkills(adventurer, sourceState).find((skill) => skill.id === entry.id)?.totalAvailablePips ?? 3, nextRank)
+    );
+    if ((entry.level ?? 1) > maxLevel) {
+      return false;
+    }
+  }
+
+  for (const spell of adventurer.campaignState.learnedSpells) {
+    const requiredRank = getReferenceEntry(spell.id, sourceState)?.level ?? 1;
+    if (nextRank < requiredRank) {
+      return false;
+    }
+  }
+
+  const nextProgression = getProgressionState(
+    {
+      ...adventurer,
+      campaignState: {
+        ...adventurer.campaignState,
+        xpMarksByRow: nextMarks
+      }
+    },
+    sourceState
+  );
+  const actionUsed = adventurer.campaignState.statIncreases.actions;
+  const nonActionUsed =
+    adventurer.campaignState.statIncreases.health
+    + adventurer.campaignState.statIncreases.skill
+    + adventurer.campaignState.statIncreases.magic;
+
+  if (actionUsed > nextProgression.latePicks) {
+    return false;
+  }
+
+  return nonActionUsed <= (nextProgression.totalPicks - actionUsed);
+}
+
+function renderXpAllocationSummary(progressionState) {
+  if (progressionState.xpOverspent > 0) {
+    return `XP overspent by ${progressionState.xpOverspent}. Re-add XP or remove learned choices.`;
+  }
+
+  if (progressionState.xpPending > 0) {
+    return `${progressionState.xpPending} XP ready to allocate to skills or spells.`;
+  }
+
+  if (progressionState.xpMarked > 0) {
+    return "All marked XP is currently allocated.";
+  }
+
+  return "Mark XP to learn or improve skills and spells.";
+}
+
+function getProfessionBoard(professionName) {
+  const profession = getNormalizedProfessionValue(professionName);
+  if (!profession) {
+    return null;
+  }
+
+  const key = getLooseKey(profession);
+  return professionCatalog.find((board) => getLooseKey(board?.profession) === key) ?? null;
+}
+
+function getProfessionBoardLabel(adventurer) {
+  const board = getProfessionBoard(adventurer.profile.profession);
+  if (!board?.profession) {
+    return "No board";
+  }
+
+  return board.boardCode ? `${board.profession} ${board.boardCode}` : board.profession;
+}
+
+function getSpellCardForProfession(professionName) {
+  const profession = getNormalizedProfessionValue(professionName);
+  if (!profession) {
+    return null;
+  }
+
+  const key = getLooseKey(profession);
+  return (state.cardCatalog?.referenceCards ?? []).find((card) =>
+    card.kind === "spell-card" && getLooseKey(card.name) === key
+  ) ?? null;
+}
+
+function normalizeSkillId(skillName, professionName = "", sourceState = state) {
+  const professionKey = getLooseKey(professionName);
+  const skillKey = getLooseKey(skillName);
+  const scopedAlias = PROFESSION_SCOPED_SKILL_ID_ALIASES[`${professionKey}:${skillKey}`];
+  if (scopedAlias) {
+    return scopedAlias;
+  }
+
+  const globalAlias = GLOBAL_SKILL_ID_ALIASES[skillKey];
+  if (globalAlias) {
+    return globalAlias;
+  }
+
+  const reference = getAllReferenceEntries(sourceState).find((entry) =>
+    getLooseKey(entry.id) === skillKey || getLooseKey(entry.name) === skillKey
+  );
+
+  return reference?.id ?? toKebabCase(skillName);
+}
+
+function getBoardSkillPipCount(skill) {
+  return Number.isFinite(skill?.totalAvailablePips) ? skill.totalAvailablePips : 3;
+}
+
+function getBoardSkills(adventurer, sourceState = state) {
+  const board = getProfessionBoard(adventurer.profile.profession);
+  if (!board?.skills?.length) {
+    return [];
+  }
+
+  return board.skills.map((skill) => {
+    const id = normalizeSkillId(skill.name, board.profession, sourceState);
+    return {
+      ...skill,
+      id,
+      totalAvailablePips: getBoardSkillPipCount(skill),
+      hasReference: Boolean(getReferenceEntry(id, sourceState))
+    };
+  });
+}
+
+function getAvailableBoardSkills(adventurer, sourceState = state) {
+  const learnedIds = new Set(adventurer.campaignState.learnedSkills.map((entry) => entry.id));
+  return getBoardSkills(adventurer, sourceState).filter((skill) => !learnedIds.has(skill.id));
+}
+
+function getSkillMinimumLevel(adventurer, skillId, sourceState = state) {
+  const startingBadge = getCharacterTemplate(getAdventurerTemplateId(adventurer), sourceState)?.startingBadge;
+  if (startingBadge?.type === "skill" && startingBadge.id === skillId) {
+    return startingBadge.level ?? 1;
+  }
+
+  return 0;
+}
+
+function getSkillMaxLevel(adventurer, skillId, fallbackPipCount = 3, sourceState = state) {
+  const boardSkill = getBoardSkills(adventurer, sourceState).find((skill) => skill.id === skillId);
+  const totalAvailablePips = boardSkill?.totalAvailablePips ?? fallbackPipCount;
+  return Math.max(
+    getSkillMinimumLevel(adventurer, skillId, sourceState),
+    Math.min(totalAvailablePips, getDerivedRank(adventurer, sourceState))
+  );
+}
+
+function canIncreaseAbilityLevel(adventurer, entry) {
+  if (entry.type !== "skill") {
+    return false;
+  }
+
+  const progressionState = getProgressionState(adventurer);
+  if (progressionState.xpPending <= 0 || progressionState.xpOverspent > 0) {
+    return false;
+  }
+
+  return (entry.level ?? 1) < getSkillMaxLevel(adventurer, entry.id);
+}
+
+function canDecreaseAbilityLevel(adventurer, entry) {
+  if (entry.type !== "skill") {
+    return false;
+  }
+
+  const currentLevel = entry.level ?? 1;
+  return currentLevel > getSkillMinimumLevel(adventurer, entry.id);
+}
+
+function canLearnBoardSkill(adventurer, skillId) {
+  const progressionState = getProgressionState(adventurer);
+  if (progressionState.xpPending <= 0 || progressionState.xpOverspent > 0) {
+    return false;
+  }
+
+  if (adventurer.campaignState.learnedSkills.some((entry) => entry.id === skillId)) {
+    return false;
+  }
+
+  return getSkillMaxLevel(adventurer, skillId) >= 1;
+}
+
+function canLearnSpell(adventurer, spellId) {
+  const progressionState = getProgressionState(adventurer);
+  if (progressionState.xpPending <= 0 || progressionState.xpOverspent > 0) {
+    return false;
+  }
+
+  if (adventurer.campaignState.learnedSpells.some((entry) => entry.id === spellId)) {
+    return false;
+  }
+
+  const requiredRank = getReferenceEntry(spellId)?.level ?? 1;
+  return progressionState.rank >= requiredRank;
 }
 
 function getTrackIncreaseCap(adventurer, track, sourceState = state) {
@@ -1569,6 +2117,8 @@ function normalizeAdventurer(currentState, adventurer) {
   }
 
   adventurer.campaignState.rank = getDerivedRank(adventurer, currentState);
+  adventurer.campaignState.learnedSkills = normalizeLearnedSkills(adventurer, currentState);
+  adventurer.campaignState.learnedSpells = normalizeLearnedSpells(adventurer);
   normalizeStatIncreases(currentState, adventurer);
 
   clampTrackerState(adventurer);
@@ -1576,6 +2126,53 @@ function normalizeAdventurer(currentState, adventurer) {
   adventurer.trackerState.statusEffects = adventurer.trackerState.statusEffects.filter((effect, index, values) =>
     STATUS_EFFECTS.includes(effect) && values.indexOf(effect) === index
   );
+}
+
+function normalizeLearnedSkills(adventurer, sourceState = state) {
+  const seen = new Set();
+  return (adventurer.campaignState.learnedSkills ?? []).reduce((skills, entry) => {
+    if (!entry?.id || seen.has(entry.id)) {
+      return skills;
+    }
+
+    seen.add(entry.id);
+    if (entry.type !== "skill") {
+      skills.push({
+        id: entry.id,
+        name: entry.name ?? formatLabel(entry.id),
+        type: entry.type ?? "ability",
+        level: entry.level ?? null
+      });
+      return skills;
+    }
+
+    const minimumLevel = Math.max(1, getSkillMinimumLevel(adventurer, entry.id, sourceState) || 1);
+    skills.push({
+      id: entry.id,
+      name: entry.name ?? formatLabel(entry.id),
+      type: "skill",
+      level: clamp(entry.level ?? 1, minimumLevel, Math.max(minimumLevel, getSkillMaxLevel(adventurer, entry.id, 3, sourceState)))
+    });
+    return skills;
+  }, []);
+}
+
+function normalizeLearnedSpells(adventurer) {
+  const seen = new Set();
+  return (adventurer.campaignState.learnedSpells ?? []).reduce((spells, entry) => {
+    if (!entry?.id || seen.has(entry.id)) {
+      return spells;
+    }
+
+    seen.add(entry.id);
+    spells.push({
+      id: entry.id,
+      name: entry.name ?? formatLabel(entry.id),
+      type: "spell",
+      level: null
+    });
+    return spells;
+  }, []);
 }
 
 function normalizePartyRoster(currentState) {
@@ -1754,6 +2351,21 @@ function getTrackChipLabel(track) {
     magic: "Magic",
     actions: "Act"
   }[track] ?? formatLabel(track);
+}
+
+function getLooseKey(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function toKebabCase(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function clamp(value, min, max) {

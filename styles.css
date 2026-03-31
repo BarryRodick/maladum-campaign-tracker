@@ -391,6 +391,10 @@ a {
   color: var(--text-soft);
 }
 
+.progress-note.is-warning {
+  color: #ffd4c8;
+}
+
 .bonus-dock {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -479,6 +483,10 @@ a {
   padding-right: 0.1rem;
 }
 
+.drawer-level-dock {
+  max-height: 12rem;
+}
+
 .progress-entry {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -522,6 +530,115 @@ a {
   font-size: 0.72rem;
   text-transform: capitalize;
   background: rgba(255, 236, 205, 0.08);
+}
+
+.drawer-section {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.drawer-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.drawer-section-head strong {
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.drawer-section-head span,
+.board-skill-meta,
+.spell-meta-row {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.board-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.25rem, 1fr));
+  gap: 0.55rem;
+}
+
+.board-skill-tile {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 236, 205, 0.08);
+  background: rgba(255, 236, 205, 0.05);
+}
+
+.board-skill-link,
+.board-skill-link-static {
+  min-height: 2.25rem;
+}
+
+.board-skill-link-static {
+  display: flex;
+  align-items: center;
+  padding: 0.42rem 0.58rem;
+  border-radius: 12px;
+  color: var(--text);
+  background: rgba(255, 236, 205, 0.08);
+}
+
+.board-skill-pips {
+  display: flex;
+  gap: 0.28rem;
+  flex-wrap: wrap;
+}
+
+.board-skill-pip {
+  width: 0.68rem;
+  height: 0.68rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 236, 205, 0.18);
+  background: rgba(255, 236, 205, 0.08);
+}
+
+.board-skill-pip.is-filled {
+  border-color: rgba(245, 204, 117, 0.9);
+  background: var(--accent-strong);
+  box-shadow: 0 0 10px rgba(245, 204, 117, 0.28);
+}
+
+.board-skill-pip.is-open {
+  border-color: rgba(140, 177, 193, 0.48);
+  background: rgba(140, 177, 193, 0.18);
+}
+
+.board-skill-pip.is-locked {
+  border-style: dashed;
+  opacity: 0.55;
+}
+
+.board-skill-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 1.9rem;
+}
+
+.board-learn-btn {
+  width: auto;
+  min-width: 5rem;
+}
+
+.spell-grid .board-skill-tile {
+  gap: 0.45rem;
+}
+
+.spell-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 /* ── Slide tools (below card per character) ──── */
