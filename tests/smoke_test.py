@@ -135,21 +135,38 @@ def recruit_adventurer(
     profession: str,
     placement: str = "active",
 ) -> None:
+    set_builder_selection(driver, template_id, profession, placement)
+    driver.execute_script(
+        "document.querySelector('button[data-action=\"add-adventurer\"]').click();"
+    )
+
+
+def set_builder_selection(
+    driver: webdriver.Chrome,
+    template_id: str | None = None,
+    profession: str | None = None,
+    placement: str | None = None,
+) -> None:
     if driver.find_elements(By.CSS_SELECTOR, 'button[data-page-kind="campaign"]'):
         open_campaign_page(driver)
 
     driver.execute_script(
         """
         let characterSelect = document.querySelector('select[data-role="builder-field"][data-field="builderCharacterId"]');
-        characterSelect.value = arguments[0];
-        characterSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        if (characterSelect && arguments[0] !== null) {
+          characterSelect.value = arguments[0];
+          characterSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         let professionSelect = document.querySelector('select[data-role="builder-field"][data-field="builderProfession"]');
-        professionSelect.value = arguments[1];
-        professionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        if (professionSelect && arguments[1] !== null) {
+          professionSelect.value = arguments[1];
+          professionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         let placementSelect = document.querySelector('select[data-role="builder-field"][data-field="builderPlacement"]');
-        placementSelect.value = arguments[2];
-        placementSelect.dispatchEvent(new Event('change', { bubbles: true }));
-        document.querySelector('button[data-action="add-adventurer"]').click();
+        if (placementSelect && arguments[2] !== null) {
+            placementSelect.value = arguments[2];
+            placementSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         """,
         template_id,
         profession,
@@ -275,6 +292,19 @@ def main() -> int:
             "Choose your first hero and then their profession." in team_builder_text,
         )
 
+        set_builder_selection(driver, profession="Rogue")
+        wait_until(
+            wait,
+            lambda current: bool(current.find_elements(By.CSS_SELECTOR, ".builder-preview-board")),
+            "Profession preview did not render in the team builder.",
+        )
+        profession_preview_text = driver.find_element(By.CSS_SELECTOR, ".builder-preview-board").text
+        check(
+            "shows a profession board preview while building the team",
+            "Rogue" in profession_preview_text and "8 skills" in profession_preview_text,
+            profession_preview_text.replace("\n", " | "),
+        )
+
         recruit_adventurer(driver, "character-unger", "Marksman")
         wait_until(
             wait,
@@ -390,12 +420,11 @@ def main() -> int:
             get_adventurer_state(driver, "character-syrio")["trackerState"]["currentSkill"] == 0,
         )
 
-        open_drawer(driver, "character-syrio", "Progression")
         rogue_board_tiles = driver.find_elements(
             By.XPATH,
             (
                 '//article[@data-adventurer-id="character-syrio"]'
-                '//details[summary[normalize-space()="Progression"]]//*[contains(@class,"board-skill-tile")]'
+                '//*[contains(@class,"board-skill-tile")]'
             ),
         )
         check(
@@ -404,11 +433,25 @@ def main() -> int:
             f"found {len(rogue_board_tiles)}",
         )
 
+        rogue_learn_labels = driver.execute_script(
+            """
+            return [...document.querySelectorAll(
+              'article.card-slide[data-adventurer-id="character-syrio"] button[data-action="learn-board-skill"]'
+            )].map((button) => button.textContent.trim());
+            """
+        )
+        check(
+            "class board learn controls use compact icons",
+            bool(rogue_learn_labels)
+            and all(label != "Learn" for label in rogue_learn_labels)
+            and all(label == "+" for label in rogue_learn_labels),
+            f"labels {', '.join(rogue_learn_labels[:3])}",
+        )
+
         camouflage_learn_button = driver.find_element(
             By.XPATH,
             (
                 '//article[@data-adventurer-id="character-syrio"]'
-                '//details[summary[normalize-space()="Progression"]]'
                 '//button[@data-action="learn-board-skill" and @data-skill-id="camouflage"]'
             ),
         )
@@ -432,12 +475,10 @@ def main() -> int:
             get_adventurer_state(driver, "character-syrio")["campaignState"]["xpMarksByRow"][0] == 1,
         )
 
-        open_drawer(driver, "character-syrio", "Progression")
         camouflage_learn_button = driver.find_element(
             By.XPATH,
             (
                 '//article[@data-adventurer-id="character-syrio"]'
-                '//details[summary[normalize-space()="Progression"]]'
                 '//button[@data-action="learn-board-skill" and @data-skill-id="camouflage"]'
             ),
         )

@@ -559,6 +559,11 @@ a {
   font-size: 0.74rem;
 }
 
+.board-section {
+  display: grid;
+  gap: 0.5rem;
+}
+
 .board-skill-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10.25rem, 1fr));
@@ -625,9 +630,11 @@ a {
   min-height: 1.9rem;
 }
 
-.board-learn-btn {
-  width: auto;
-  min-width: 5rem;
+.board-action-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .spell-grid .board-skill-tile {
@@ -664,6 +671,105 @@ a {
   border-radius: 999px;
   color: var(--text-soft);
   background: rgba(255, 236, 205, 0.08);
+}
+
+.builder-preview {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 235, 202, 0.09);
+  background: rgba(255, 235, 202, 0.04);
+  align-items: center;
+}
+
+.builder-preview-stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.builder-preview-thumb {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.builder-preview-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.builder-preview-stats strong {
+  color: var(--text);
+}
+
+.builder-preview-tracks {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.builder-preview-badge {
+  font-size: 0.8rem;
+  color: var(--text-muted, rgba(255, 236, 205, 0.45));
+}
+
+.builder-preview-board {
+  display: grid;
+  gap: 0.7rem;
+  align-items: stretch;
+}
+
+.builder-preview-board-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.builder-preview-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.8rem;
+  padding: 0 0.7rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  color: var(--text-soft);
+  background: rgba(255, 236, 205, 0.08);
+  border: 1px solid rgba(255, 236, 205, 0.08);
+}
+
+.builder-preview-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.builder-board-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.builder-board-skill {
+  display: grid;
+  gap: 0.28rem;
+  padding: 0.5rem 0.58rem;
+  border-radius: 12px;
+  background: rgba(255, 236, 205, 0.06);
+  border: 1px solid rgba(255, 236, 205, 0.06);
+}
+
+.builder-board-skill-name {
+  font-size: 0.8rem;
+  color: var(--text);
 }
 
 .builder-grid {
@@ -704,31 +810,50 @@ a {
   gap: 0.65rem;
 }
 
-.roster-card {
-  display: grid;
-  gap: 0.7rem;
-  padding: 0.8rem;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 236, 205, 0.08);
-  background: rgba(255, 236, 205, 0.05);
+.roster-drawer {
+  border: 1px solid rgba(255, 235, 202, 0.09);
+  border-radius: var(--radius-md);
+  background: rgba(255, 235, 202, 0.04);
 }
 
-.roster-meta {
+.roster-summary {
+  list-style: none;
   display: flex;
-  align-items: start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
 }
 
-.roster-meta strong {
+.roster-summary::-webkit-details-marker {
+  display: none;
+}
+
+.roster-summary-info {
+  min-width: 0;
+}
+
+.roster-summary-info strong {
   display: block;
   color: var(--text);
 }
 
-.roster-meta p {
-  margin: 0.16rem 0 0;
+.roster-summary-detail {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.85rem;
   color: var(--text-soft);
-  font-size: 0.9rem;
+}
+
+.roster-drawer[open] .roster-summary {
+  border-bottom: 1px solid rgba(255, 235, 202, 0.09);
+}
+
+.roster-drawer-body {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem 0.85rem 0.9rem;
 }
 
 .roster-open {
@@ -1130,7 +1255,11 @@ code {
     align-items: end;
   }
 
-  .roster-card {
+  .builder-grid-compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .roster-drawer-body {
     grid-template-columns: minmax(0, 1.2fr) minmax(12rem, 16rem) minmax(0, 0.8fr);
     align-items: end;
   }
@@ -1169,6 +1298,10 @@ code {
 
 @media (max-width: 420px) {
   .campaign-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .builder-board-preview-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }

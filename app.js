@@ -250,6 +250,10 @@ function handleClick(event) {
     return;
   }
 
+  if (target.closest("summary")) {
+    event.preventDefault();
+  }
+
   const action = target.dataset.action;
 
   if (action === "set-track") {
@@ -471,6 +475,7 @@ function handleClick(event) {
     state.adventurers.push(adventurer);
     setAdventurerRosterState(adventurer.id, rosterState);
     ui.activePageIndex = [...state.party.memberIds, ...state.party.reserveIds].indexOf(adventurer.id);
+    ui.builderProfession = "";
     syncBuilderSelections();
     commit();
     return;
@@ -861,13 +866,20 @@ function renderAdventurerSlide(adventurer) {
           <h4>${escapeHtml(adventurer.profile.species)} · ${escapeHtml(getDisplayProfession(adventurer))}</h4>
           <p>Rank ${adventurer.campaignState.rank} · ${escapeHtml(rosterLabel)}</p>
         </div>
+        <p class="progress-note${progressionState.xpOverspent ? " is-warning" : ""}">${escapeHtml(renderXpAllocationSummary(progressionState))}</p>
+        <div class="board-section">
+          <div class="drawer-section-head">
+            <strong>Class Board</strong>
+            <span>${escapeHtml(getProfessionBoardLabel(adventurer))}</span>
+          </div>
+          ${renderClassBoard(adventurer)}
+        </div>
         <details class="tool-drawer">
           <summary>Progression</summary>
           <div class="bonus-dock">
             ${["health", "skill", "magic", "actions"].map((track) => renderBonusChip(adventurer, track, false)).join("")}
           </div>
           <p class="progress-note">${escapeHtml(renderProgressSummary(progressionState))}</p>
-          <p class="progress-note${progressionState.xpOverspent ? " is-warning" : ""}">${escapeHtml(renderXpAllocationSummary(progressionState))}</p>
           <div class="drawer-section">
             <div class="drawer-section-head">
               <strong>Learned</strong>
@@ -876,13 +888,6 @@ function renderAdventurerSlide(adventurer) {
             <div class="level-dock drawer-level-dock">
               ${renderProgressEntries(adventurer, { emptyMessage: "No learned skills or spells yet." })}
             </div>
-          </div>
-          <div class="drawer-section">
-            <div class="drawer-section-head">
-              <strong>Class Board</strong>
-              <span>${escapeHtml(getProfessionBoardLabel(adventurer))}</span>
-            </div>
-            ${renderClassBoard(adventurer)}
           </div>
         </details>
         <details class="tool-drawer">
@@ -913,8 +918,11 @@ function renderTeamBuilder() {
   const professionOptions = getProfessionOptions();
   const activeCount = state.party.memberIds.length;
   const reserveCount = state.party.reserveIds.length;
-  const canAddAsActive = ui.builderPlacement !== "active" || activeCount < ACTIVE_PARTY_LIMIT;
+  const partyFull = activeCount >= ACTIVE_PARTY_LIMIT;
+  const canAddAsActive = ui.builderPlacement !== "active" || !partyFull;
   const addDisabled = !ui.builderCharacterId || !getNormalizedProfessionValue(ui.builderProfession) || !canAddAsActive;
+  const characterPreview = ui.builderCharacterId ? renderCharacterPreview(ui.builderCharacterId) : "";
+  const professionPreview = ui.builderProfession ? renderProfessionPreview(ui.builderProfession) : "";
 
   return `
     <section class="team-builder panel">
@@ -926,7 +934,7 @@ function renderTeamBuilder() {
         <span class="team-summary">${roster.length} tracked</span>
       </div>
 
-      <div class="builder-grid">
+      <div class="builder-grid${partyFull ? "" : " builder-grid-compact"}">
         <label class="field">
           <span>Character Card</span>
           <select data-role="builder-field" data-field="builderCharacterId" ${availableTemplates.length ? "" : "disabled"}>
@@ -950,6 +958,7 @@ function renderTeamBuilder() {
             `).join("")}
           </select>
         </label>
+        ${partyFull ? `
         <label class="field">
           <span>Join As</span>
           <select data-role="builder-field" data-field="builderPlacement">
@@ -957,6 +966,7 @@ function renderTeamBuilder() {
             <option value="reserve" ${ui.builderPlacement === "reserve" ? "selected" : ""}>Reserve</option>
           </select>
         </label>
+        ` : ""}
         <div class="field field-action">
           <span>Recruit</span>
           <button
@@ -970,8 +980,17 @@ function renderTeamBuilder() {
       ${availableTemplates.length
         ? ""
         : `<p class="empty">All imported character cards are already being tracked. Add more character cards to the catalog to recruit additional adventurers here.</p>`}
-      ${ui.builderPlacement === "active" && activeCount >= ACTIVE_PARTY_LIMIT
+      ${partyFull && ui.builderPlacement === "active"
         ? `<p class="progress-note">The active party is full. New recruits can still be added to the reserve.</p>`
+        : ""}
+
+      ${(characterPreview || professionPreview)
+        ? `
+        <div class="builder-preview-stack">
+          ${characterPreview}
+          ${professionPreview}
+        </div>
+      `
         : ""}
 
       <div class="roster-list">
@@ -981,53 +1000,151 @@ function renderTeamBuilder() {
   `;
 }
 
+function renderCharacterPreview(characterId) {
+  const template = getCharacterTemplate(characterId);
+  if (!template) {
+    return "";
+  }
+
+  const asset = getCharacterAsset(template.id);
+  const imagePath = resolveAssetPath(asset?.previewImagePath);
+  const badge = template.startingBadge;
+  const t = template.trackTemplate;
+
+  return `
+    <div class="builder-preview">
+      ${imagePath ? `<img class="builder-preview-thumb" src="${escapeAttribute(imagePath)}" alt="${escapeAttribute(template.name)}">` : ""}
+      <div class="builder-preview-stats">
+        <strong>${escapeHtml(template.name)}</strong>
+        <span>${escapeHtml(template.species)}</span>
+        <div class="builder-preview-tracks">
+          <span title="Health">H ${t.health.baseValue}</span>
+          <span title="Skill">S ${t.skill.baseValue}</span>
+          <span title="Magic">M ${t.magic.baseValue}</span>
+          <span title="Actions">A ${t.actions.baseValue}</span>
+        </div>
+        ${badge ? `<span class="builder-preview-badge">${escapeHtml(badge.name)}</span>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderProfessionPreview(professionName) {
+  const profession = getNormalizedProfessionValue(professionName);
+  if (!profession) {
+    return "";
+  }
+
+  const board = getProfessionBoard(profession);
+  const spellCard = getSpellCardForProfession(profession);
+
+  if (!board && !spellCard) {
+    return `
+      <div class="builder-preview builder-preview-board">
+        <div class="builder-preview-board-head">
+          <div class="builder-preview-stats">
+            <strong>${escapeHtml(profession)}</strong>
+            <span>No imported board preview available yet.</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const boardSkills = board?.skills ?? [];
+  const specialNotes = [...(board?.specials ?? [])];
+  if (spellCard?.abilities?.length) {
+    specialNotes.push(`Spell board available · ${spellCard.abilities.length} spells`);
+  }
+
+  return `
+    <div class="builder-preview builder-preview-board">
+      <div class="builder-preview-board-head">
+        <div class="builder-preview-stats">
+          <strong>${escapeHtml(profession)}</strong>
+          <span>${escapeHtml(board?.boardCode ? `Board ${board.boardCode}` : "Profession board preview")}</span>
+        </div>
+        <span class="builder-preview-chip">${boardSkills.length} skills</span>
+      </div>
+      ${boardSkills.length
+        ? `
+        <div class="builder-board-preview-grid">
+          ${boardSkills.map((skill) => renderProfessionPreviewSkill(skill)).join("")}
+        </div>
+      `
+        : `<p class="empty">No imported skill board data is available for ${escapeHtml(profession)}.</p>`}
+      ${specialNotes.length
+        ? `
+        <div class="builder-preview-notes">
+          ${specialNotes.map((note) => `<span class="builder-preview-chip">${escapeHtml(note)}</span>`).join("")}
+        </div>
+      `
+        : ""}
+    </div>
+  `;
+}
+
+function renderProfessionPreviewSkill(skill) {
+  const totalAvailablePips = getBoardSkillPipCount(skill);
+  return `
+    <div class="builder-board-skill">
+      <span class="builder-board-skill-name">${escapeHtml(skill.name)}</span>
+      <div class="board-skill-pips" aria-hidden="true">
+        ${renderBoardSkillPips(totalAvailablePips, 0, totalAvailablePips)}
+      </div>
+    </div>
+  `;
+}
+
 function renderRosterCard(adventurer) {
   const active = isActiveRosterMember(adventurer.id);
   const canPromote = active || state.party.memberIds.length < ACTIVE_PARTY_LIMIT;
+  const profession = getNormalizedProfessionValue(adventurer.profile.profession) || "Unassigned";
 
   return `
-    <div class="roster-card">
-      <div class="roster-meta">
-        <div>
+    <details class="roster-drawer">
+      <summary class="roster-summary">
+        <div class="roster-summary-info">
           <strong>${escapeHtml(adventurer.name)}</strong>
-          <p>${escapeHtml(`${adventurer.profile.species} · Rank ${adventurer.campaignState.rank} · ${getRosterLabel(adventurer.id)}`)}</p>
+          <span class="roster-summary-detail">${escapeHtml(`${profession} · ${getRosterLabel(adventurer.id)}`)}</span>
         </div>
         <button class="entry-link roster-open" data-action="jump-adventurer" data-adventurer-id="${adventurer.id}">
           Open
         </button>
-      </div>
+      </summary>
+      <div class="roster-drawer-body">
+        <label class="field field-inline">
+          <span>Profession</span>
+          <select data-role="profession-field" data-adventurer-id="${adventurer.id}">
+            <option value="">Unassigned</option>
+            ${getProfessionOptions().map((p) => `
+              <option
+                value="${escapeAttribute(p)}"
+                ${getNormalizedProfessionValue(adventurer.profile.profession) === p ? "selected" : ""}
+              >
+                ${escapeHtml(p)}
+              </option>
+            `).join("")}
+          </select>
+        </label>
 
-      <label class="field field-inline">
-        <span>Profession</span>
-        <select data-role="profession-field" data-adventurer-id="${adventurer.id}">
-          <option value="">Unassigned</option>
-          ${getProfessionOptions().map((profession) => `
-            <option
-              value="${escapeAttribute(profession)}"
-              ${getNormalizedProfessionValue(adventurer.profile.profession) === profession ? "selected" : ""}
-            >
-              ${escapeHtml(profession)}
-            </option>
-          `).join("")}
-        </select>
-      </label>
-
-      <div class="roster-actions">
-        <button
-          class="state-toggle${active ? " is-active" : ""}"
-          data-action="set-roster-state"
-          data-adventurer-id="${adventurer.id}"
-          data-roster-state="active"
-          ${canPromote ? "" : "disabled"}
-        >Active</button>
-        <button
-          class="state-toggle${!active ? " is-active" : ""}"
-          data-action="set-roster-state"
-          data-adventurer-id="${adventurer.id}"
-          data-roster-state="reserve"
-        >Reserve</button>
+        <div class="roster-actions">
+          <button
+            class="state-toggle${active ? " is-active" : ""}"
+            data-action="set-roster-state"
+            data-adventurer-id="${adventurer.id}"
+            data-roster-state="active"
+            ${canPromote ? "" : "disabled"}
+          >Active</button>
+          <button
+            class="state-toggle${!active ? " is-active" : ""}"
+            data-action="set-roster-state"
+            data-adventurer-id="${adventurer.id}"
+            data-roster-state="reserve"
+          >Reserve</button>
+        </div>
       </div>
-    </div>
+    </details>
   `;
 }
 
@@ -1282,24 +1399,28 @@ function renderBoardSkillTile(adventurer, board, skill) {
   if (!learnedEntry) {
     actionMarkup = `
       <button
-        class="reward-choice board-learn-btn"
+        class="mini-step board-action-btn"
         data-action="learn-board-skill"
         data-adventurer-id="${adventurer.id}"
         data-skill-id="${skillId}"
         data-skill-name="${escapeAttribute(skill.name)}"
+        aria-label="Learn ${escapeAttribute(skill.name)}"
+        title="Learn ${escapeAttribute(skill.name)}"
         ${canLearnBoardSkill(adventurer, skillId) ? "" : "disabled"}
-      >Learn</button>
+      >+</button>
     `;
   } else if (learnedEntry.type === "skill" && canIncreaseAbilityLevel(adventurer, learnedEntry)) {
     actionMarkup = `
       <button
-        class="reward-choice board-learn-btn"
+        class="mini-step board-action-btn"
         data-action="adjust-ability-level"
         data-adventurer-id="${adventurer.id}"
         data-ability-id="${skillId}"
         data-pool="skills"
         data-amount="1"
-      >+1</button>
+        aria-label="Increase ${escapeAttribute(skill.name)}"
+        title="Increase ${escapeAttribute(skill.name)}"
+      >+</button>
     `;
   } else if (learnedEntry.type === "skill") {
     actionMarkup = `<span class="board-skill-meta">Rank ${currentLevel}/${maxLevel}</span>`;
@@ -1313,15 +1434,7 @@ function renderBoardSkillTile(adventurer, board, skill) {
         ? `<button class="entry-link board-skill-link" data-action="select-reference" data-reference-id="${skillId}">${escapeHtml(skill.name)}</button>`
         : `<div class="board-skill-link board-skill-link-static">${escapeHtml(skill.name)}</div>`}
       <div class="board-skill-pips" aria-hidden="true">
-        ${Array.from({ length: totalAvailablePips }, (_, index) => {
-          const classes = [
-            "board-skill-pip",
-            index < currentLevel ? "is-filled" : "",
-            index >= currentLevel && index < unlockedPips ? "is-open" : "",
-            index >= unlockedPips ? "is-locked" : ""
-          ].filter(Boolean).join(" ");
-          return `<span class="${classes}"></span>`;
-        }).join("")}
+        ${renderBoardSkillPips(totalAvailablePips, currentLevel, unlockedPips)}
       </div>
       <div class="board-skill-action">
         ${actionMarkup}
@@ -1399,6 +1512,18 @@ function renderSpellTile(adventurer, spell) {
       </div>
     </div>
   `;
+}
+
+function renderBoardSkillPips(totalAvailablePips, currentLevel = 0, unlockedPips = totalAvailablePips) {
+  return Array.from({ length: totalAvailablePips }, (_, index) => {
+    const classes = [
+      "board-skill-pip",
+      index < currentLevel ? "is-filled" : "",
+      index >= currentLevel && index < unlockedPips ? "is-open" : "",
+      index >= unlockedPips ? "is-locked" : ""
+    ].filter(Boolean).join(" ");
+    return `<span class="${classes}"></span>`;
+  }).join("");
 }
 
 function renderStatusToggle(adventurer, effect) {
@@ -1578,8 +1703,10 @@ function syncBuilderSelections() {
     ui.builderProfession = "";
   }
 
-  if (!["active", "reserve"].includes(ui.builderPlacement)) {
-    ui.builderPlacement = state?.party?.memberIds?.length < ACTIVE_PARTY_LIMIT ? "active" : "reserve";
+  if (state?.party?.memberIds?.length < ACTIVE_PARTY_LIMIT) {
+    ui.builderPlacement = "active";
+  } else if (!["active", "reserve"].includes(ui.builderPlacement)) {
+    ui.builderPlacement = "reserve";
   }
 }
 
