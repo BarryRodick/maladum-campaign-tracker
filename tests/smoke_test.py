@@ -424,7 +424,7 @@ def main() -> int:
             By.XPATH,
             (
                 '//article[@data-adventurer-id="character-syrio"]'
-                '//*[contains(@class,"board-skill-tile")]'
+                '//*[contains(@class,"skill-board-panel")]//*[contains(@class,"board-skill-tile")]'
             ),
         )
         check(
@@ -433,10 +433,20 @@ def main() -> int:
             f"found {len(rogue_board_tiles)}",
         )
 
+        rogue_board_preview = driver.find_elements(
+            By.CSS_SELECTOR,
+            'article.card-slide[data-adventurer-id="character-syrio"] .skill-board-preview-art',
+        )
+        check(
+            "shows the profession board under the character card",
+            len(rogue_board_preview) == 1,
+            f"found {len(rogue_board_preview)} preview",
+        )
+
         rogue_learn_labels = driver.execute_script(
             """
             return [...document.querySelectorAll(
-              'article.card-slide[data-adventurer-id="character-syrio"] button[data-action="learn-board-skill"]'
+              'article.card-slide[data-adventurer-id="character-syrio"] .skill-board-panel button[data-action="learn-board-skill"]'
             )].map((button) => button.textContent.trim());
             """
         )

@@ -831,11 +831,12 @@ function renderAdventurerSlide(adventurer) {
   const cardProgressEntries = getProgressEntries(adventurer, { includeStartingBadge: false });
   const cardRewardChoices = renderCardRewardChoices(adventurer);
   const showCardProgressDock = Boolean(cardRewardChoices || cardProgressEntries.length > 0);
+  const skillBoardPanel = renderSkillBoardPanel(adventurer);
 
   return `
       <article class="card-slide" data-adventurer-id="${adventurer.id}">
         <div class="scan-card panel">
-          ${portraitPath ? `<img class="scan-art" src="${escapeAttribute(portraitPath)}" alt="${escapeAttribute(adventurer.name)}">` : ""}
+        ${portraitPath ? `<img class="scan-art" src="${escapeAttribute(portraitPath)}" alt="${escapeAttribute(adventurer.name)}">` : ""}
         <div class="scan-overlay">
           ${renderTrackHotspots(adventurer)}
           ${renderXpHotspots(adventurer)}
@@ -861,19 +862,14 @@ function renderAdventurerSlide(adventurer) {
           </div>
         </div>
 
+        ${skillBoardPanel}
+
         <div class="slide-tools panel">
         <div class="section-head compact">
           <h4>${escapeHtml(adventurer.profile.species)} · ${escapeHtml(getDisplayProfession(adventurer))}</h4>
           <p>Rank ${adventurer.campaignState.rank} · ${escapeHtml(rosterLabel)}</p>
         </div>
         <p class="progress-note${progressionState.xpOverspent ? " is-warning" : ""}">${escapeHtml(renderXpAllocationSummary(progressionState))}</p>
-        <div class="board-section">
-          <div class="drawer-section-head">
-            <strong>Class Board</strong>
-            <span>${escapeHtml(getProfessionBoardLabel(adventurer))}</span>
-          </div>
-          ${renderClassBoard(adventurer)}
-        </div>
         <details class="tool-drawer">
           <summary>Progression</summary>
           <div class="bonus-dock">
@@ -909,6 +905,36 @@ function renderAdventurerSlide(adventurer) {
         </details>
       </div>
     </article>
+  `;
+}
+
+function renderSkillBoardPanel(adventurer) {
+  const profession = getNormalizedProfessionValue(adventurer.profile.profession);
+  const referenceCard = getProfessionReferenceCard(profession);
+  const previewPath = referenceCard ? resolveAssetPath(getCardPreviewImagePath(referenceCard)) : null;
+
+  return `
+    <section class="skill-board-panel panel">
+      <div class="drawer-section-head">
+        <strong>Skill Board</strong>
+        <span>${escapeHtml(getProfessionBoardLabel(adventurer))}</span>
+      </div>
+      ${previewPath
+        ? `
+        <div class="skill-board-preview">
+          <img
+            class="skill-board-preview-art"
+            src="${escapeAttribute(previewPath)}"
+            alt="${escapeAttribute(`${profession} skill board`)}"
+          >
+        </div>
+      `
+        : ""}
+      ${profession
+        ? `<p class="progress-note">Tap a skill below to open its rules. Use the + control to spend XP when a rank is available.</p>`
+        : ""}
+      ${renderClassBoard(adventurer)}
+    </section>
   `;
 }
 
@@ -2069,6 +2095,28 @@ function getSpellCardForProfession(professionName) {
   return (state.cardCatalog?.referenceCards ?? []).find((card) =>
     card.kind === "spell-card" && getLooseKey(card.name) === key
   ) ?? null;
+}
+
+function getProfessionReferenceCard(professionName) {
+  const profession = getNormalizedProfessionValue(professionName);
+  if (!profession) {
+    return null;
+  }
+
+  const key = getLooseKey(profession);
+  return (state.cardCatalog?.referenceCards ?? []).find((card) =>
+    card.kind === "profession" && getLooseKey(card.name) === key
+  ) ?? null;
+}
+
+function getCardPreviewImagePath(card) {
+  if (!card?.sourceAssetIds?.length) {
+    return null;
+  }
+
+  const assetId = card.sourceAssetIds[0];
+  const asset = (state.cardCatalog?.assets ?? []).find((entry) => entry.id === assetId) ?? null;
+  return asset?.previewImagePath ?? null;
 }
 
 function normalizeSkillId(skillName, professionName = "", sourceState = state) {
