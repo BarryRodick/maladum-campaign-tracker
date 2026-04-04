@@ -617,7 +617,7 @@ def main() -> int:
             By.CSS_SELECTOR,
             (
                 'article.card-slide[data-adventurer-id="character-artain"] '
-                '.progress-dock .reward-choice[data-action="adjust-bonus"]'
+                '.reward-choice-grid .reward-choice[data-action="adjust-bonus"]'
             ),
         )
         check(

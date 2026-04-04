@@ -829,9 +829,6 @@ function renderAdventurerSlide(adventurer) {
   const portraitPath = resolveAssetPath(adventurer.profile.image);
   const progressionState = getProgressionState(adventurer);
   const rosterLabel = getRosterLabel(adventurer.id);
-  const cardProgressEntries = getProgressEntries(adventurer, { includeStartingBadge: false });
-  const cardRewardChoices = renderCardRewardChoices(adventurer);
-  const showCardProgressDock = Boolean(cardRewardChoices || cardProgressEntries.length > 0);
   const skillBoardPanel = renderSkillBoardPanel(adventurer);
 
   return `
@@ -850,16 +847,6 @@ function renderAdventurerSlide(adventurer) {
             >
               Restore
             </button>
-            ${showCardProgressDock ? `
-            <div class="progress-dock" style="${boxPosition(CARD_OVERLAY.dock)}">
-              ${cardRewardChoices}
-              ${cardProgressEntries.length ? `
-              <div class="level-dock">
-                ${renderProgressEntries(adventurer, { includeStartingBadge: false, emptyMessage: "" })}
-              </div>
-              ` : ""}
-            </div>
-            ` : ""}
           </div>
         </div>
 
@@ -871,6 +858,7 @@ function renderAdventurerSlide(adventurer) {
           <p>Rank ${adventurer.campaignState.rank} · ${escapeHtml(rosterLabel)}</p>
         </div>
         <p class="progress-note${progressionState.xpOverspent ? " is-warning" : ""}">${escapeHtml(renderXpAllocationSummary(progressionState))}</p>
+        ${renderCardRewardChoices(adventurer)}
         <details class="tool-drawer">
           <summary>Progression</summary>
           <div class="bonus-dock">
