@@ -28,7 +28,7 @@ Requires `selenium` (`python -m pip install --user selenium`) and Chrome or Edge
 
 ## Deployment
 
-Deployed via **GitHub Pages** from the `main` branch, served at `maladum.assisted-review.com`. No build step required — the repo root is the deploy root. GitHub Pages serves `index.html` directly.
+Deployed via **GitHub Pages** from the `main` branch, served at `https://barryrodick.github.io/maladum-campaign-tracker/`. No build step required — the repo root is the deploy root. GitHub Pages serves `index.html` directly.
 
 ## Architecture
 
