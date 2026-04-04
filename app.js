@@ -444,11 +444,12 @@ function handleClick(event) {
   }
 
   if (action === "jump-adventurer") {
-    const pageIndex = getRosterAdventurers().findIndex((adventurer) => adventurer.id === target.dataset.adventurerId);
-    if (pageIndex === -1) {
+    const rosterIndex = getRosterAdventurers().findIndex((adventurer) => adventurer.id === target.dataset.adventurerId);
+    if (rosterIndex === -1) {
       return;
     }
 
+    const pageIndex = rosterIndex + 1;
     ui.activePageIndex = pageIndex;
     scrollToPage(pageIndex);
     return;
@@ -474,7 +475,7 @@ function handleClick(event) {
     );
     state.adventurers.push(adventurer);
     setAdventurerRosterState(adventurer.id, rosterState);
-    ui.activePageIndex = [...state.party.memberIds, ...state.party.reserveIds].indexOf(adventurer.id);
+    ui.activePageIndex = [...state.party.memberIds, ...state.party.reserveIds].indexOf(adventurer.id) + 1;
     ui.builderProfession = "";
     syncBuilderSelections();
     commit();
@@ -657,29 +658,27 @@ function render() {
       </header>
 
       <div class="page-dots">
+        <button
+          class="page-dot${ui.activePageIndex === 0 ? " is-active" : ""}"
+          data-action="jump-page"
+          data-page-index="0"
+          data-page-kind="campaign"
+          aria-label="Jump to campaign page"
+          title="Campaign"
+        >&#x2699;</button>
         ${rosterAdventurers.map((a, i) => `
           <button
-            class="page-dot ${isActiveRosterMember(a.id) ? "is-party" : "is-reserve"}${i === ui.activePageIndex ? " is-active" : ""}"
+            class="page-dot ${isActiveRosterMember(a.id) ? "is-party" : "is-reserve"}${i + 1 === ui.activePageIndex ? " is-active" : ""}"
             data-action="jump-page"
-            data-page-index="${i}"
+            data-page-index="${i + 1}"
             data-page-kind="character"
             aria-label="Jump to ${escapeAttribute(a.name)}"
             title="${escapeAttribute(`${a.name} · ${getRosterLabel(a.id)}`)}"
           >${escapeHtml(a.name.charAt(0))}</button>
         `).join("")}
-        <button
-          class="page-dot${ui.activePageIndex === rosterAdventurers.length ? " is-active" : ""}"
-          data-action="jump-page"
-          data-page-index="${rosterAdventurers.length}"
-          data-page-kind="campaign"
-          aria-label="Jump to campaign page"
-          title="Campaign"
-        >&#x2699;</button>
       </div>
 
       <div class="page-deck card-deck" aria-label="Character pages">
-        ${rosterAdventurers.map(renderAdventurerSlide).join("")}
-
         <article class="card-slide campaign-page">
           ${renderTeamBuilder()}
           <section class="campaign-bar panel">
@@ -721,6 +720,8 @@ function render() {
             </label>
           </section>
         </article>
+
+        ${rosterAdventurers.map(renderAdventurerSlide).join("")}
       </div>
 
       <section class="campaign-bar-desktop panel">
